@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="package" method="upgrade">
+    <name>JT - Favorites</name>
+    <packagename>jtfavorites</packagename>
+	<author>Guido De Gobbis</author>
+	<creationDate>##DATE##</creationDate>
+	<authorEmail>support@joomtools.de</authorEmail>
+	<authorUrl>https://joomtools.de</authorUrl>
+	<copyright>Copyright ##YEAR## JoomTools.de. All rights reserved.</copyright>
+	<license>GNU General Public License version 3 or later</license>
+	<version>##VERSION##</version>
+	<description>Pakage to manage a list of favorites for plugin/module action.</description>
+
+	<files>
+		##FILES##
+	</files>
+
+	<updateservers>
+		<server type="extension" priority="1" name="JT - Favorites">https://raw.githubusercontent.com/JoomTools/pkg_jtfavorites/master/update.xml</server>
+	</updateservers>
+</extension>

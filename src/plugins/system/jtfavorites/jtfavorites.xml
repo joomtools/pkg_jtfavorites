@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="plugin" group="system" method="upgrade">
+	<name>PLG_JTFAVORITES_XML_NAME</name>
+	<author>Guido De Gobbis</author>
+	<creationDate>##DATE##</creationDate>
+	<authorEmail>support@joomtools.de</authorEmail>
+	<authorUrl>https://joomtools.de</authorUrl>
+	<copyright>Copyright ##YEAR## JoomTools.de. All rights reserved.</copyright>
+	<license>GNU General Public License version 3 or later</license>
+	<version>##VERSION##</version>
+	<description>PLG_JTFAVORITES_XML_DESCRIPTION</description>
+
+	<files>
+		##FILES##
+	</files>
+</extension>
