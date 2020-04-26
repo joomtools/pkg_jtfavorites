@@ -58,7 +58,8 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
-		if (!isset($data->params))
+
+		if ($this->app->isClient('administrator') && !isset($data->params))
 		{
 			return true;
 		}
@@ -73,9 +74,13 @@ class PlgSystemJtfavorites extends CMSPlugin
 		$formName = $form->getName();
 
 		$allowedFormNames = array(
+			// Backend
 			'com_plugins.plugin',
 			'com_modules.module',
 			'com_modules.module.admin',
+
+			// Frondend
+			'com_config.modules',
 		);
 
 		if (!in_array($formName, $allowedFormNames))
@@ -110,22 +115,18 @@ class PlgSystemJtfavorites extends CMSPlugin
 
 		Form::addFormPath(dirname(__FILE__) . '/forms');
 
-		if (version_compare(JVERSION, '3.10', 'ge'))
+		$oldXML = $form->getXml();
+		$form->reset(true);
+
+		$xmlFile = 'jtfavorites';
+
+		if ($this->app->isClient('site'))
 		{
-			$form->loadFile('jtfavorites.3.10');
-
-			$fields = array(
-				'add_to_favoites',
-				'favorite_title_note',
-				'favorite_title',
-			);
-
-			$this->app->setUserState($formName . '.edit.global.fields', $fields);
-
-			return true;
+			$xmlFile = 'jtfavorites.fe';
 		}
 
-		$form->loadFile('jtfavorites');
+		$form->loadFile($xmlFile);
+		$form->load($oldXML);
 
 		return true;
 	}
@@ -142,9 +143,33 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
-	public function onExtensionAfterSave($context, $table, $isNew, $params)
+	public function onExtensionAfterSave($context, $table, $isNew)
 	{
-		return null;
+		$test = true;
+		// Called after extension is saved successful
+		// TODO update entry in table
+	}
+
+	public function onUserBeforeDataValidation($form, $data)
+	{
+		Form::addFormPath(dirname(__FILE__) . '/forms');
+		$xmlFile = 'jtfavorites';
+
+		if ($this->app->isClient('site'))
+		{
+			$xmlFile = 'jtfavorites.fe';
+		}
+
+		$form->loadFile($xmlFile);
+		$form->bind($data);
+		$test = true;
+		// Called after extension is saved successful
+		// TODO update entry in table
+	}
+
+	public function onExtensionBeforeSave($context, $table, $isNew)
+	{
+		$test = true;
 		// Called after extension is saved successful
 		// TODO update entry in table
 	}
@@ -161,7 +186,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onExtensionAfterDelete($context, $table)
 	{
-		return null;
+		$test = true;
 		// Called after deleted in trash
 		// TODO clear entry in table
 	}
