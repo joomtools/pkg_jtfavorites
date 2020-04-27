@@ -48,8 +48,8 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Adds additional fields to plugins/modules editing form to activate as favorite
 	 *
-	 * @param Form  $form The form to be altered.
-	 * @param mixed $data The associated data for the form.
+	 * @param   Form   $form  The form to be altered.
+	 * @param   mixed  $data  The associated data for the form.
 	 *
 	 * @return   boolean
 	 *
@@ -88,14 +88,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 			return true;
 		}
 
-		/**
-		 * We only allow users who has Super User permission change this setting for himself or for other users
-		 * who has same Super User permission
-		 */
-
-		$user = Factory::getUser();
-
-		if (!$user->authorise('core.edit'))
+		// We only allow users who has edit permission change this setting for himself
+		// TODO It must be clarified whether this check is really necessary
+		if (!Factory::getUser()->authorise('core.edit'))
 		{
 			return true;
 		}
@@ -117,15 +112,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 
 		$oldXML = $form->getXml();
 		$form->reset(true);
-
-		$xmlFile = 'jtfavorites';
-
-		if ($this->app->isClient('site'))
-		{
-			$xmlFile = 'jtfavorites.fe';
-		}
-
-		$form->loadFile($xmlFile);
+		$form->loadFile('jtfavorites');
 		$form->load($oldXML);
 
 		return true;
@@ -134,10 +121,10 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Method is called when an extension is being saved
 	 *
-	 * @param string  $context The extension
-	 * @param JTable  $table   DataBase Table object
-	 * @param boolean $isNew   If the extension is new or not
-	 * @param array   $params  Extension params
+	 * @param   string   $context  The extension
+	 * @param   JTable   $table    DataBase Table object
+	 * @param   boolean  $isNew    If the extension is new or not
+	 * @param   array    $params   Extension params
 	 *
 	 * @return   void
 	 *
@@ -150,21 +137,20 @@ class PlgSystemJtfavorites extends CMSPlugin
 		// TODO update entry in table
 	}
 
+	/**
+	 * Add our fields to form to prevent deletion of submitted data before validation
+	 *
+	 * @param   Form   $form  The form to be altered.
+	 * @param   mixed  $data  The associated data for the form.
+	 *
+	 * @return   void
+	 *
+	 * @since    __DEPLOY_VERSION__
+	 */
 	public function onUserBeforeDataValidation($form, $data)
 	{
 		Form::addFormPath(dirname(__FILE__) . '/forms');
-		$xmlFile = 'jtfavorites';
-
-		if ($this->app->isClient('site'))
-		{
-			$xmlFile = 'jtfavorites.fe';
-		}
-
-		$form->loadFile($xmlFile);
-		$form->bind($data);
-		$test = true;
-		// Called after extension is saved successful
-		// TODO update entry in table
+		$form->loadFile('jtfavorites');
 	}
 
 	public function onExtensionBeforeSave($context, $table, $isNew)
@@ -177,8 +163,8 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Method is called when an extension is being deleted from trash
 	 *
-	 * @param string $context The extension
-	 * @param JTable $table   DataBase Table object
+	 * @param   string  $context  The extension
+	 * @param   JTable  $table    DataBase Table object
 	 *
 	 * @return   void
 	 *

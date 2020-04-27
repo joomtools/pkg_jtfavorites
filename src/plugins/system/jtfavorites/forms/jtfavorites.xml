@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form>
 	<fields name="params">
-		<fieldset name="basic">
+		<fieldset name="jtfavorites" label="PLG_SYSTEM_JTFAVORITES_FIELDSET_LABEL">
 			<field name="add_to_favoites"
 			       type="radio"
 			       default="0"
