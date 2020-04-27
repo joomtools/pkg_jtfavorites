@@ -12,16 +12,16 @@
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
-			<field name="favorite_title_note"
-			       type="spacer"
-			       class="text"
-			       label="PLG_SYSTEM_JTFAVORITES_TITLE_FIELD_DESCRIPTION"
-			       showon="add_to_favoites:1"
-			/>
 			<field name="favorite_title"
 			       type="text"
 			       maxlength="30"
 			       label="PLG_SYSTEM_JTFAVORITES_TITLE_FIELD_LABEL"
+			       description="PLG_SYSTEM_JTFAVORITES_TITLE_FIELD_DESCRIPTION"
+			       showon="add_to_favoites:1"
+			/>
+			<field name="favorite_title_note"
+			       type="note"
+			       class="alert alert-info"
 			       description="PLG_SYSTEM_JTFAVORITES_TITLE_FIELD_DESCRIPTION"
 			       showon="add_to_favoites:1"
 			/>

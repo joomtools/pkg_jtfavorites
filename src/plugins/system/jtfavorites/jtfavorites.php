@@ -46,7 +46,109 @@ class PlgSystemJtfavorites extends CMSPlugin
 	protected $autoloadLanguage = true;
 
 	/**
-	 * Adds additional fields to plugins/modules editing form to activate as favorite
+	 * List of allowed extensions to add to favorites
+	 *
+	 * @var     array
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private $allowedExtensions = array(
+		// Backend
+		'com_plugins.plugin',
+		'com_modules.module',
+		'com_modules.module.admin',
+
+		// Frondend
+		'com_config.modules',
+	);
+
+	/**
+	 * List of needed permissions to add to favorites
+	 *
+	 * @var     array
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private $neededPermissions = array(
+		// Access to backend
+		'core.login.admin',
+
+		// Access to extension
+		'core.manage',
+
+		// Permission to edit
+		'core.edit',
+	);
+
+	/**
+	 * We only allow users who has the right permission to set this setting for himself
+	 *
+	 * @param   string  $context  Form name
+	 *
+	 * @return   bool
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function accessAllowed($context)
+	{
+		$return = true;
+
+		if (!in_array($context, $this->allowedExtensions))
+		{
+			return false;
+		}
+
+		if ($this->app->isClient('site'))
+		{
+			$context = 'com_modules.module';
+		}
+
+		$user = Factory::getUser();
+
+		foreach ($this->neededPermissions as $permission)
+		{
+			// Checking if user has the right permissions
+			if (!$user->authorise($permission, $context))
+			{
+				$return = false;
+
+				break;
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Adding our fields before data validation to prevent the deletion of submitted values in backend
+	 * Setting attribute disabled for our fields in order to prevent any changes in frontend
+	 *
+	 * @param   Form   $form  The form to be altered.
+	 * @param   mixed  $data  The associated data for the form.
+	 *
+	 * @return   void
+	 *
+	 * @since    __DEPLOY_VERSION__
+	 */
+	public function onUserBeforeDataValidation($form, $data)
+	{
+		if (!$this->accessAllowed($form->getName()))
+		{
+			return;
+		}
+
+		if ($this->app->isClient('administrator'))
+		{
+			Form::addFormPath(dirname(__FILE__) . '/forms');
+			$form->loadFile('jtfavorites');
+
+			return;
+		}
+
+		$this->disableFields($form);
+	}
+
+	/**
+	 * Adds additional fields to plugins/modules editing form to activate as favorite,
+	 * in frontend as disabled
 	 *
 	 * @param   Form   $form  The form to be altered.
 	 * @param   mixed  $data  The associated data for the form.
@@ -58,12 +160,6 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
-
-		if ($this->app->isClient('administrator') && !isset($data->params))
-		{
-			return true;
-		}
-
 		if (!$form instanceof Form)
 		{
 			$this->_subject->setError('JERROR_NOT_A_FORM');
@@ -71,41 +167,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 			return false;
 		}
 
-		$formName = $form->getName();
-
-		$allowedFormNames = array(
-			// Backend
-			'com_plugins.plugin',
-			'com_modules.module',
-			'com_modules.module.admin',
-
-			// Frondend
-			'com_config.modules',
-		);
-
-		if (!in_array($formName, $allowedFormNames))
+		if (!$this->accessAllowed($form->getName()))
 		{
 			return true;
-		}
-
-		// We only allow users who has edit permission change this setting for himself
-		// TODO It must be clarified whether this check is really necessary
-		if (!Factory::getUser()->authorise('core.edit'))
-		{
-			return true;
-		}
-
-		// If we are on the save command, no data is passed to $data variable, we need to get it directly from request
-		$jformData = $this->app->input->get('jform', array(), 'array');
-
-		if ($jformData && !$data)
-		{
-			$data = $jformData;
-		}
-
-		if (is_array($data))
-		{
-			$data = (object) $data;
 		}
 
 		Form::addFormPath(dirname(__FILE__) . '/forms');
@@ -115,7 +179,43 @@ class PlgSystemJtfavorites extends CMSPlugin
 		$form->loadFile('jtfavorites');
 		$form->load($oldXML);
 
+		if ($this->app->isClient('site'))
+		{
+			$this->disableFields($form);
+		}
+
 		return true;
+	}
+
+	/**
+	 * Setting attribute disabled for our fields in order to prevent any changes in frontend
+	 *
+	 * @param   Form  $form  The form to be altered.
+	 *
+	 * @return   void
+	 *
+	 * @since    __DEPLOY_VERSION__
+	 */
+	private function disableFields($form)
+	{
+		$fields = $form->getFieldset('jtfavorites');
+
+		foreach ($fields as $field)
+		{
+			$attribute = 'disabled';
+			$value     = 'true';
+
+			if ((string) $field->type == 'Note')
+			{
+				$attribute = 'type';
+				$value     = 'hidden';
+			}
+
+			$form->setFieldAttribute((string) $field->fieldname, $attribute, $value, 'params');
+		}
+
+		$extraNote = new SimpleXMLElement('<field name="favorite_frontend_note" type="note" class="alert" description="PLG_SYSTEM_JTFAVORITES_FRONTEND_NOTE" ></field>');
+		$form->setField($extraNote, 'params', false, 'jtfavorites');
 	}
 
 	/**
@@ -124,7 +224,6 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   string   $context  The extension
 	 * @param   JTable   $table    DataBase Table object
 	 * @param   boolean  $isNew    If the extension is new or not
-	 * @param   array    $params   Extension params
 	 *
 	 * @return   void
 	 *
@@ -132,29 +231,23 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onExtensionAfterSave($context, $table, $isNew)
 	{
+		if (!$this->accessAllowed($context))
+		{
+			return;
+		}
+
 		$test = true;
 		// Called after extension is saved successful
 		// TODO update entry in table
 	}
 
-	/**
-	 * Add our fields to form to prevent deletion of submitted data before validation
-	 *
-	 * @param   Form   $form  The form to be altered.
-	 * @param   mixed  $data  The associated data for the form.
-	 *
-	 * @return   void
-	 *
-	 * @since    __DEPLOY_VERSION__
-	 */
-	public function onUserBeforeDataValidation($form, $data)
-	{
-		Form::addFormPath(dirname(__FILE__) . '/forms');
-		$form->loadFile('jtfavorites');
-	}
-
 	public function onExtensionBeforeSave($context, $table, $isNew)
 	{
+		if (!$this->accessAllowed($context))
+		{
+			return;
+		}
+
 		$test = true;
 		// Called after extension is saved successful
 		// TODO update entry in table
@@ -172,6 +265,11 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onExtensionAfterDelete($context, $table)
 	{
+		if (!$this->accessAllowed($context))
+		{
+			return;
+		}
+
 		$test = true;
 		// Called after deleted in trash
 		// TODO clear entry in table
