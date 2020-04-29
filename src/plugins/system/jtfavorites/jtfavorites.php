@@ -15,6 +15,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;
+use Joomla\Registry\Registry;
 
 /**
  * System plugin to manage a list of favorites for plugin/module action.
@@ -44,6 +45,14 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @since   __DEPLOY_VERSION__
 	 */
 	protected $autoloadLanguage = true;
+
+	/**
+	 * List of allowed extensions to add to favorites
+	 *
+	 * @var     bool
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private $accessAllowed = false;
 
 	/**
 	 * List of allowed extensions to add to favorites
@@ -78,43 +87,35 @@ class PlgSystemJtfavorites extends CMSPlugin
 		'core.edit',
 	);
 
-	/**
-	 * We only allow users who has the right permission to set this setting for himself
-	 *
-	 * @param   string  $context  Form name
-	 *
-	 * @return   bool
-	 *
-	 * @since   __DEPLOY_VERSION__
-	 */
-	private function accessAllowed($context)
+	public function onAfterRoute()
 	{
-		$return = true;
+		$_context = array();
+		$input = $this->app->input;
+		$_context[] = $input->getCmd('option');
+		$view = $input->getCmd('view');
+		$_task = $input->getCmd('task');
+		$id = $input->getInt('id');
 
-		if (!in_array($context, $this->allowedExtensions))
+		if (!empty($task) && strpos('.', $_task))
 		{
-			return false;
+			list($view, $task) = explode('.', $_task);
 		}
 
-		if ($this->app->isClient('site'))
+		if (!empty($task) && $task == 'cancel')
 		{
-			$context = 'com_modules.module';
+			return;
 		}
 
-		$user = Factory::getUser();
-
-		foreach ($this->neededPermissions as $permission)
+		if (!empty($view))
 		{
-			// Checking if user has the right permissions
-			if (!$user->authorise($permission, $context))
-			{
-				$return = false;
-
-				break;
-			}
+			$_context[] = $view;
 		}
 
-		return $return;
+		$context =  implode('.', $_context);
+
+		$this->validateAccess($context, $id);
+
+		// TODO delete entry in DB if $this->accessAllowed is false
 	}
 
 	/**
@@ -130,7 +131,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onUserBeforeDataValidation($form, $data)
 	{
-		if (!$this->accessAllowed($form->getName()))
+		if (!$this->accessAllowed)
 		{
 			return;
 		}
@@ -167,7 +168,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 			return false;
 		}
 
-		if (!$this->accessAllowed($form->getName()))
+		if (!$this->accessAllowed)
 		{
 			return true;
 		}
@@ -231,7 +232,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onExtensionAfterSave($context, $table, $isNew)
 	{
-		if (!$this->accessAllowed($context))
+		if (!$this->accessAllowed)
 		{
 			return;
 		}
@@ -243,7 +244,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 
 	public function onExtensionBeforeSave($context, $table, $isNew)
 	{
-		if (!$this->accessAllowed($context))
+		if (!$this->accessAllowed)
 		{
 			return;
 		}
@@ -265,7 +266,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onExtensionAfterDelete($context, $table)
 	{
-		if (!$this->accessAllowed($context))
+		if (!$this->accessAllowed)
 		{
 			return;
 		}
@@ -273,5 +274,63 @@ class PlgSystemJtfavorites extends CMSPlugin
 		$test = true;
 		// Called after deleted in trash
 		// TODO clear entry in table
+	}
+
+	/**
+	 * We only allow users who has the right permission to set this setting for himself
+	 *
+	 * @param   string  $context  Form name
+	 * @param   int     $id       Extension id
+	 *
+	 * @return   void
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function validateAccess($context, $id)
+	{
+		$this->accessAllowed = true;
+
+		if (!in_array($context, $this->allowedExtensions))
+		{
+			$this->accessAllowed = false;
+		}
+
+		if ($this->accessAllowed)
+		{
+			$this->accessAllowed = $this->validatePermissions($context . '.' . $id);
+		}
+	}
+
+	/**
+	 * Validate user permissions
+	 *
+	 * @param   string  $context  Form name
+	 *
+	 * @return   bool
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function validatePermissions($context)
+	{
+		if ($this->app->isClient('site') && $context == 'com_config.module')
+		{
+			$context = 'com_modules.module';
+		}
+
+		$user   = Factory::getUser();
+		$return = true;
+
+		foreach ($this->neededPermissions as $permission)
+		{
+			// Checking if user has the right permissions
+			if (!$user->authorise($permission, $context))
+			{
+				$return = false;
+
+				break;
+			}
+		}
+
+		return $return;
 	}
 }
