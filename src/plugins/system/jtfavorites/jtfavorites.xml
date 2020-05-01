@@ -9,7 +9,21 @@
 	<license>GNU General Public License version 3 or later</license>
 	<version>##VERSION##</version>
 	<description>PLG_JTFAVORITES_XML_DESCRIPTION</description>
-
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">install/sql/mysql/install.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">install/sql/mysql/uninstall.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">install/sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
 	<files>
 		##FILES##
 	</files>
