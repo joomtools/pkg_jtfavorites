@@ -11,11 +11,8 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Factory;
-use Joomla\CMS\User\User;
-use Joomla\Registry\Registry;
 
 /**
  * System plugin to manage a list of favorites for plugin/module action.
@@ -28,7 +25,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @var     JApplicationCms
 	 * @since   __DEPLOY_VERSION__
 	 */
-	protected $app = null;
+	protected $app;
 
 	/**
 	 * Database object.
@@ -49,10 +46,18 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * List of allowed extensions to add to favorites
 	 *
+	 * @var     string
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private $assetsName;
+
+	/**
+	 * List of allowed extensions to add to favorites
+	 *
 	 * @var     bool
 	 * @since   __DEPLOY_VERSION__
 	 */
-	private $accessAllowed = false;
+	private $accessAllowed;
 
 	/**
 	 * List of allowed extensions to add to favorites
@@ -61,13 +66,14 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @since   __DEPLOY_VERSION__
 	 */
 	private $allowedExtensions = array(
-		// Backend
+		// Plugins
 		'com_plugins.plugin',
-		'com_modules.module',
-		'com_modules.module.admin',
 
-		// Frondend
-		'com_config.modules',
+		// Site module
+		'com_modules.module',
+
+		// Administrator module
+		'com_modules.module.admin',
 	);
 
 	/**
@@ -87,64 +93,53 @@ class PlgSystemJtfavorites extends CMSPlugin
 		'core.edit',
 	);
 
-	public function onAfterRoute()
-	{
-		$_context = array();
-		$input = $this->app->input;
-		$_context[] = $input->getCmd('option');
-		$view = $input->getCmd('view');
-		$_task = $input->getCmd('task');
-		$id = $input->getInt('id');
-
-		if (!empty($task) && strpos('.', $_task))
-		{
-			list($view, $task) = explode('.', $_task);
-		}
-
-		if (!empty($task) && $task == 'cancel')
-		{
-			return;
-		}
-
-		if (!empty($view))
-		{
-			$_context[] = $view;
-		}
-
-		$context =  implode('.', $_context);
-
-		$this->validateAccess($context, $id);
-
-		// TODO delete entry in DB if $this->accessAllowed is false
-	}
-
 	/**
-	 * Adding our fields before data validation to prevent the deletion of submitted values in backend
-	 * Setting attribute disabled for our fields in order to prevent any changes in frontend
+	 * Set the values in extensions for favorite options.
 	 *
-	 * @param   Form   $form  The form to be altered.
-	 * @param   mixed  $data  The associated data for the form.
+	 * @param   string  $context  The context for the data
+	 * @param   object  $data     An object containing the data for the form.
 	 *
-	 * @return   void
+	 * @return   boolean
 	 *
 	 * @since    __DEPLOY_VERSION__
 	 */
-	public function onUserBeforeDataValidation($form, $data)
+	public function onContentPrepareData($context, $data)
 	{
-		if (!$this->accessAllowed)
+		if (!$this->validateAccess($context))
 		{
-			return;
+			return true;
 		}
 
-		if ($this->app->isClient('administrator'))
+		if (!empty($data))
 		{
-			Form::addFormPath(dirname(__FILE__) . '/forms');
-			$form->loadFile('jtfavorites');
+			$userParams    = array();
+			$defaultParams = array(
+				'add_to_favorites' => '0',
+				'favorite_title'   => '',
+			);
 
-			return;
+			$dataParams         = $data->getProperties();
+			$options            = array();
+			$options['where']['and'][] = $this->db->qn('user_id') . '=' . (int) Factory::getUser()->id;
+			$options['where']['and'][] = $this->db->qn('assets_name') . '=' . $this->db->q($this->assetsName);
+
+			// Get name from database, if entry exists
+			$favoriteTitle = $this->findInDb($options);
+
+			if (!is_null($favoriteTitle))
+			{
+				$userParams = array(
+					'add_to_favorites' => '1',
+					'favorite_title'   => $favoriteTitle,
+				);
+			}
+
+			$params = array_merge($dataParams, $defaultParams, $userParams);
+
+			$data->setProperties($params);
 		}
 
-		$this->disableFields($form);
+		return true;
 	}
 
 	/**
@@ -161,14 +156,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
-		if (!$form instanceof Form)
-		{
-			$this->_subject->setError('JERROR_NOT_A_FORM');
-
-			return false;
-		}
-
-		if (!$this->accessAllowed)
+		if (!$this->validateAccess($form->getName()))
 		{
 			return true;
 		}
@@ -180,43 +168,51 @@ class PlgSystemJtfavorites extends CMSPlugin
 		$form->loadFile('jtfavorites');
 		$form->load($oldXML);
 
-		if ($this->app->isClient('site'))
-		{
-			$this->disableFields($form);
-		}
-
 		return true;
 	}
 
 	/**
-	 * Setting attribute disabled for our fields in order to prevent any changes in frontend
+	 * Change the state in database if the state in a table is changed
 	 *
-	 * @param   Form  $form  The form to be altered.
+	 * An authorization check is not necessary because Joomla! blocks the action before this event is triggered.
+	 *
+	 * @param   string   $context  The context for the extension passed to the plugin.
+	 * @param   array    $pks      A list of primary key ids of the extensions that has changed state.
+	 * @param   integer  $state    The value of the state that the extensions has been changed to.
 	 *
 	 * @return   void
 	 *
-	 * @since    __DEPLOY_VERSION__
+	 * @since   __DEPLOY_VERSION__
 	 */
-	private function disableFields($form)
+	public function onContentChangeState($context, $pks, $state)
 	{
-		$fields = $form->getFieldset('jtfavorites');
+		$options = array();
 
-		foreach ($fields as $field)
+		foreach ($pks as $extensionId)
 		{
-			$attribute = 'disabled';
-			$value     = 'true';
+			$assetName                = (string) $context . '.' . $extensionId;
+			$search                   = array();
+			$search['where']['and'][] = $this->db->qn('assets_name') . '=' . $this->db->q($assetName);
 
-			if ((string) $field->type == 'Note')
+			// Get name from database, if entry exists
+			$favoriteTitle = $this->findInDb($search);
+
+			if (is_null($favoriteTitle))
 			{
-				$attribute = 'type';
-				$value     = 'hidden';
+				continue;
 			}
 
-			$form->setFieldAttribute((string) $field->fieldname, $attribute, $value, 'params');
+			$options['where']['or'][] = $this->db->qn('assets_name') . '=' . $this->db->q($assetName);
 		}
 
-		$extraNote = new SimpleXMLElement('<field name="favorite_frontend_note" type="note" class="alert" description="PLG_SYSTEM_JTFAVORITES_FRONTEND_NOTE" ></field>');
-		$form->setField($extraNote, 'params', false, 'jtfavorites');
+		if (!empty($options))
+		{
+			$options['set'][] = $this->db->qn('state') . '=' . (int) $state;
+
+			$this->updateDbEntry($options);
+		}
+
+		return;
 	}
 
 	/**
@@ -232,26 +228,59 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onExtensionAfterSave($context, $table, $isNew)
 	{
-		if (!$this->accessAllowed)
+		if (!$this->validateAccess($context))
 		{
 			return;
 		}
 
-		$test = true;
-		// Called after extension is saved successful
-		// TODO update entry in table
-	}
+		$params                   = $this->app->input->get('jform', array(), 'array');
+		$options                  = array();
+		$search                   = array();
+		$search['where']['and'][] = $this->db->qn('user_id') . '=' . (int) Factory::getUser()->id;
+		$search['where']['and'][] = $this->db->qn('assets_name') . '=' . $this->db->q($this->assetsName);
 
-	public function onExtensionBeforeSave($context, $table, $isNew)
-	{
-		if (!$this->accessAllowed)
+		// Get name from database, if entry exists
+		$favoriteTitle = $this->findInDb($search);
+
+		if (!is_null($favoriteTitle) && (int) $params['add_to_favorites'] === 0)
+		{
+			$this->deleteDbEntry($search);
+
+			return;
+		}
+
+		if (is_null($favoriteTitle) && (int) $params['add_to_favorites'] === 0)
 		{
 			return;
 		}
 
-		$test = true;
-		// Called after extension is saved successful
-		// TODO update entry in table
+		$options['set']   = $search['where']['and'];
+		$options['set'][] = $this->db->qn('client_id') . '=' . (int) $table->get('client_id');
+		$options['set'][] = $this->db->qn('favorite_title') . '=' . $this->db->q((string) $params['favorite_title']);
+
+		switch (true)
+		{
+			case 'com_plugins.plugin' == $context :
+				$options['set'][] = $this->db->qn('state') . '=' . (int) $params['enabled'];
+				break;
+
+			default:
+				$options['set'][] = $this->db->qn('state') . '=' . (int) $params['published'];
+				break;
+		}
+
+		if (is_null($favoriteTitle))
+		{
+			$this->insertDbEntry($options);
+
+			return;
+		}
+
+		$options['where'] = $search['where'];
+
+		$this->updateDbEntry($options);
+
+		return;
 	}
 
 	/**
@@ -266,64 +295,126 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	public function onExtensionAfterDelete($context, $table)
 	{
-		if (!$this->accessAllowed)
+		$assetsName = $context . '.' . (int) $table->get('id');
+
+		$options                  = array();
+		$options['where']['or'][] = $this->db->qn('assets_name') . '=' . $this->db->q($assetsName);
+
+		// Delete all deleted extensions entries from database
+		$favoriteTitle = $this->deleteDbEntry($options);
+	}
+
+	/**
+	 * On uninstalling extensions logging method
+	 * This method adds a record to #__action_logs contains (message, date, context, user)
+	 * Method is called when an extension is uninstalled
+	 *
+	 * @param   JInstaller  $installer  Installer instance
+	 * @param   integer     $eid        Extension id
+	 * @param   integer     $result     Installation result
+	 *
+	 * @return  void
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	public function onExtensionAfterUninstall($installer, $eid, $result)
+	{
+		if (!$result)
 		{
 			return;
 		}
 
-		$test = true;
-		// Called after deleted in trash
-		// TODO clear entry in table
+		$options                  = array();
+		$options['where']['or'][] = $this->db->qn('assets_name') . ' LIKE ' . $this->db->q('%.' . $eid);
+
+		// Delete all uninstalled extensions entries from database
+		$this->deleteDbEntry($options);
+
+		return;
 	}
 
 	/**
 	 * We only allow users who has the right permission to set this setting for himself
 	 *
-	 * @param   string  $context  Form name
-	 * @param   int     $id       Extension id
-	 *
-	 * @return   void
-	 *
-	 * @since   __DEPLOY_VERSION__
-	 */
-	private function validateAccess($context, $id)
-	{
-		$this->accessAllowed = true;
-
-		if (!in_array($context, $this->allowedExtensions))
-		{
-			$this->accessAllowed = false;
-		}
-
-		if ($this->accessAllowed)
-		{
-			$this->accessAllowed = $this->validatePermissions($context . '.' . $id);
-		}
-	}
-
-	/**
-	 * Validate user permissions
-	 *
-	 * @param   string  $context  Form name
+	 * @param   string  $context  The extension
 	 *
 	 * @return   bool
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
-	private function validatePermissions($context)
+	private function validateAccess($context)
 	{
-		if ($this->app->isClient('site') && $context == 'com_config.module')
+		if (!is_null($this->accessAllowed))
+		{
+			return $this->accessAllowed;
+		}
+
+		if ($this->app->isClient('site'))
+		{
+			$this->accessAllowed = false;
+
+			return false;
+		}
+
+		if (!in_array($context, $this->allowedExtensions))
+		{
+			$this->accessAllowed = false;
+
+			return false;
+		}
+
+		switch (true)
+		{
+			case !is_null($this->app->input->get('id', null)) :
+				$extensionId = $this->app->input->get('id');
+				break;
+
+			case !is_null($this->app->input->get('extension_id', null)) :
+				$extensionId = $this->app->input->get('extension_id');
+				break;
+
+			default :
+				$extensionId = null;
+				break;
+		}
+
+		if (is_null($extensionId))
+		{
+			$this->accessAllowed = false;
+
+			return false;
+		}
+
+		if ($context == 'com_modules.module.admin')
 		{
 			$context = 'com_modules.module';
 		}
 
-		$user   = Factory::getUser();
-		$return = true;
+		$this->assetsName    = (string) $context . '.' . $extensionId;
+		$this->accessAllowed = $this->validateAuthorizations();
+
+		return $this->accessAllowed;
+	}
+
+	/**
+	 * Validate user permissions
+	 *
+	 * @return   bool
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function validateAuthorizations()
+	{
+		list($extension, $_) = explode('.', $this->assetsName, 2);
+
+		$user       = Factory::getUser();
+		$return     = true;
+		$assetsName = $extension == 'com_plugins' ? $extension : $this->assetsName;
 
 		foreach ($this->neededPermissions as $permission)
 		{
 			// Checking if user has the right permissions
-			if (!$user->authorise($permission, $context))
+			if (!$user->authorise($permission, $assetsName))
 			{
 				$return = false;
 
@@ -332,5 +423,100 @@ class PlgSystemJtfavorites extends CMSPlugin
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Search entry in database
+	 *
+	 * @param   array  $options  The options to create the condition.
+	 *
+	 * @return   bool
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function findInDb($options)
+	{
+		$query = $this->db->getQuery(true);
+
+		$query->select($this->db->qn('favorite_title'))
+			->from($this->db->qn('#__jtfavorites'));
+
+		foreach ($options['where'] as $k => $where)
+		{
+			$query->where($where, $k);
+		}
+
+		return $this->db->setQuery($query)->loadResult();
+	}
+
+	/**
+	 * Delete entry from database
+	 *
+	 * @param   array  $options  The options to create the condition.
+	 *
+	 * @return   bool
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function deleteDbEntry($options)
+	{
+
+		$query = $this->db->getQuery(true);
+
+		$query->delete($this->db->qn('#__jtfavorites'));
+
+		foreach ($options['where'] as $k => $where)
+		{
+			$query->where($where, $k);
+		}
+
+		return $this->db->setQuery($query)->execute();
+	}
+
+	/**
+	 * Update entry in database
+	 *
+	 * @param   array  $options  The options to create the condition.
+	 *
+	 * @return   bool
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function insertDbEntry($options)
+	{
+
+		$query = $this->db->getQuery(true);
+
+		$query->insert($this->db->qn('#__jtfavorites'))
+			->set($options['set']);
+
+		return $this->db->setQuery($query)->execute();
+	}
+
+	/**
+	 * Update entry in database
+	 *
+	 * @param   array  $options  The options to create the condition.
+	 *
+	 * @return   void
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	private function updateDbEntry($options)
+	{
+
+		$query = $this->db->getQuery(true);
+
+		$query->update($this->db->qn('#__jtfavorites'))
+			->set($options['set']);
+
+		foreach ($options['where'] as $k => $where)
+		{
+			$query->where($where, $k);
+		}
+
+		$this->db->setQuery($query)->execute();
+
+		return;
 	}
 }
