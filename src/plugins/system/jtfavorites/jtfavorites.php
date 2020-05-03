@@ -233,6 +233,11 @@ class PlgSystemJtfavorites extends CMSPlugin
 			return;
 		}
 
+		if ($isNew)
+		{
+			$this->assetsName = (string) $context . '.' . $table->get('id');
+		}
+
 		$params                   = $this->app->input->get('jform', array(), 'array');
 		$options                  = array();
 		$search                   = array();
@@ -256,7 +261,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 
 		$options['set']   = $search['where']['and'];
 		$options['set'][] = $this->db->qn('client_id') . '=' . (int) $table->get('client_id');
-		$options['set'][] = $this->db->qn('favorite_title') . '=' . $this->db->q((string) $params['favorite_title']);
+		$options['set'][] = $this->db->qn('favorite_title') . '=' . $this->db->q((string) strip_tags($params['favorite_title']));
 
 		switch (true)
 		{
@@ -378,19 +383,17 @@ class PlgSystemJtfavorites extends CMSPlugin
 				break;
 		}
 
-		if (is_null($extensionId))
-		{
-			$this->accessAllowed = false;
-
-			return false;
-		}
-
 		if ($context == 'com_modules.module.admin')
 		{
 			$context = 'com_modules.module';
 		}
 
-		$this->assetsName    = (string) $context . '.' . $extensionId;
+		if (!is_null($extensionId))
+		{
+			$context = (string) $context . '.' . $extensionId;
+		}
+
+		$this->assetsName    = $context;
 		$this->accessAllowed = $this->validateAuthorizations();
 
 		return $this->accessAllowed;
@@ -407,14 +410,13 @@ class PlgSystemJtfavorites extends CMSPlugin
 	{
 		list($extension, $_) = explode('.', $this->assetsName, 2);
 
-		$user       = Factory::getUser();
 		$return     = true;
 		$assetsName = $extension == 'com_plugins' ? $extension : $this->assetsName;
 
 		foreach ($this->neededPermissions as $permission)
 		{
 			// Checking if user has the right permissions
-			if (!$user->authorise($permission, $assetsName))
+			if (!Factory::getUser()->authorise($permission, $assetsName))
 			{
 				$return = false;
 
@@ -458,9 +460,8 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
-	private function deleteDbEntry($options)
+	public function deleteDbEntry($options)
 	{
-
 		$query = $this->db->getQuery(true);
 
 		$query->delete($this->db->qn('#__jtfavorites'));
@@ -484,7 +485,6 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	private function insertDbEntry($options)
 	{
-
 		$query = $this->db->getQuery(true);
 
 		$query->insert($this->db->qn('#__jtfavorites'))
@@ -504,7 +504,6 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	private function updateDbEntry($options)
 	{
-
 		$query = $this->db->getQuery(true);
 
 		$query->update($this->db->qn('#__jtfavorites'))
