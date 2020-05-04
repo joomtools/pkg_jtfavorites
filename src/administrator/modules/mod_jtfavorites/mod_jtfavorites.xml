@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="3.9" client="administrator" method="upgrade">
-	<name>mod_jtfavorites</name>
+	<name>MOD_JTFAVORITES_XML_NAME</name>
 	<author>Guido De Gobbis</author>
 	<creationDate>##DATE##</creationDate>
 	<authorEmail>support@joomtools.de</authorEmail>
@@ -10,20 +10,45 @@
 	<version>##VERSION##</version>
 	<description>MOD_JTFAVORITES_XML_DESCRIPTION</description>
 
-	<customContent />
-
 	<files>
-		##FILES##
+		##MODULE_FILES##
 	</files>
+	<media>
+		##MEDIA_FILES##
+	</media>
 
 	<config>
 		<fields name="params">
-			<fieldset name="options" label="COM_MODULES_BASIC_FIELDSET_LABEL">
+			<fieldset name="basic">
 				<field
-					name="prepare_content"
+					name="allow_change_state"
 					type="radio"
-					label="MOD_CUSTOM_FIELD_PREPARE_CONTENT_LABEL"
-					description="MOD_CUSTOM_FIELD_PREPARE_CONTENT_DESC"
+					label="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_LABEL"
+					description="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_DESC"
+					class="btn-group btn-group-yesno"
+					default="1"
+					filter="integer"
+					>
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field
+					name="link_to_item"
+					type="radio"
+					label="MOD_JTFAVORITES_FIELD_LINK_TO_ITEM_LABEL"
+					description="MOD_JTFAVORITES_FIELD_LINK_TO_ITEM_DESC"
+					class="btn-group btn-group-yesno"
+					default="1"
+					filter="integer"
+					>
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field
+					name="show_trashed_items"
+					type="radio"
+					label="MOD_JTFAVORITES_FIELD_SHOW_TRASHED_ITEMS_LABEL"
+					description="MOD_JTFAVORITES_FIELD_SHOW_TRASHED_ITEMS_DESC"
 					class="btn-group btn-group-yesno"
 					default="1"
 					filter="integer"
@@ -47,27 +72,6 @@
 					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
 					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC"
 					rows="3"
-				/>
-
-				<field
-					name="cache"
-					type="list"
-					label="COM_MODULES_FIELD_CACHING_LABEL"
-					description="COM_MODULES_FIELD_CACHING_DESC"
-					default="1"
-					filter="integer"
-					>
-					<option value="1">JGLOBAL_USE_GLOBAL</option>
-					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
-				</field>
-
-				<field
-					name="cache_time"
-					type="number"
-					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
-					description="COM_MODULES_FIELD_CACHE_TIME_DESC"
-					default="900"
-					filter="integer"
 				/>
 			</fieldset>
 		</fields>
