@@ -17,13 +17,13 @@ use Joomla\CMS\Factory;
 /**
  * System plugin to manage a list of favorites for plugin/module action.
  *
- * @since  __DEPLOY_VERSION__
+ * @since  1.0.0
  */
 class PlgSystemJtfavorites extends CMSPlugin
 {
 	/**
 	 * @var     JApplicationCms
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	protected $app;
 
@@ -31,7 +31,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * Database object.
 	 *
 	 * @var     JDatabaseDriver
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	protected $db;
 
@@ -39,7 +39,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * Load the language file on instantiation.
 	 *
 	 * @var     boolean
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	protected $autoloadLanguage = true;
 
@@ -47,7 +47,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * List of allowed extensions to add to favorites
 	 *
 	 * @var     string
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private $assetsName;
 
@@ -55,7 +55,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * List of allowed extensions to add to favorites
 	 *
 	 * @var     bool
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private $accessAllowed;
 
@@ -63,7 +63,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * List of allowed extensions to add to favorites
 	 *
 	 * @var     array
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private $allowedExtensions = array(
 		// Plugins
@@ -80,7 +80,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * List of needed permissions to add to favorites
 	 *
 	 * @var     array
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private $neededPermissions = array(
 		// Access to backend
@@ -101,7 +101,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   boolean
 	 *
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	public function onContentPrepareData($context, $data)
 	{
@@ -152,7 +152,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @return   boolean
 	 *
 	 * @throws   \Exception
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
@@ -182,7 +182,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	public function onContentChangeState($context, $pks, $state)
 	{
@@ -224,7 +224,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	public function onExtensionAfterSave($context, $table, $isNew)
 	{
@@ -296,7 +296,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	public function onExtensionAfterDelete($context, $table)
 	{
@@ -320,7 +320,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return  void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	public function onExtensionAfterUninstall($installer, $eid, $result)
 	{
@@ -345,7 +345,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   bool
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private function validateAccess($context)
 	{
@@ -404,7 +404,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   bool
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private function validateAuthorizations()
 	{
@@ -434,7 +434,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   bool
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private function findInDb($options)
 	{
@@ -458,7 +458,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   bool
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	public function deleteDbEntry($options)
 	{
@@ -481,7 +481,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   bool
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private function insertDbEntry($options)
 	{
@@ -500,7 +500,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @return   void
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	private function updateDbEntry($options)
 	{

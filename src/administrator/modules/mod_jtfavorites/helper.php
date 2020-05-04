@@ -19,7 +19,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 /**
  * Helper for mod_jtfavorites
  *
- * @since   __DEPLOY_VERSION__
+ * @since   1.0.0
  */
 abstract class ModJtFavoritesHelper
 {
@@ -30,7 +30,7 @@ abstract class ModJtFavoritesHelper
 	 *
 	 * @return   mixed  An array of entries, or false on error.
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   1.0.0
 	 */
 	public static function getList()
 	{
@@ -83,7 +83,7 @@ abstract class ModJtFavoritesHelper
 	 * @param   string  $assetsName  The asset to validate
 	 *
 	 * @return   array|bool  false if not allowed, or asrray with permissions
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	public static function validateAuthorizations($extension, $assetsName)
 	{
@@ -131,7 +131,7 @@ abstract class ModJtFavoritesHelper
 	 * @param   string  $layout  Layout name
 	 *
 	 * @return   FileLayout
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	public static function getLayoutRenderer($layout)
 	{
@@ -150,7 +150,7 @@ abstract class ModJtFavoritesHelper
 	 *
 	 * @return   bool
 	 * @throws   \Exception
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	public static function isEnabledPlugin()
 	{
@@ -183,7 +183,7 @@ abstract class ModJtFavoritesHelper
 	 * @param   int     $client_id  The client_id (0 = site / 1 = adminstration)
 	 *
 	 * @return   void
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	public static function loadExtensionLanguage($extension, $type, $client_id = 0)
 	{
@@ -214,7 +214,7 @@ abstract class ModJtFavoritesHelper
 	 * Get the plugin id from database
 	 *
 	 * @return   mixed|null
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	protected static function getPluginId()
 	{
@@ -236,7 +236,7 @@ abstract class ModJtFavoritesHelper
 	 * @param   array  $rows  The entries to delete from database
 	 *
 	 * @return   void
-	 * @since    __DEPLOY_VERSION__
+	 * @since    1.0.0
 	 */
 	public static function deleteDbEntry($rows)
 	{
