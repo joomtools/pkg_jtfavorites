@@ -109,7 +109,10 @@ foreach ($items as $k => &$item)
 }
 
 // Delete entries from database
-ModJtFavoritesHelper::deleteDbEntry($toDeleteInDb);
+if (!empty($toDeleteInDb))
+{
+	ModJtFavoritesHelper::deleteDbEntry($toDeleteInDb);
+}
 
 if (count($items) < 1)
 {
@@ -165,7 +168,7 @@ $loadJs = ArrayHelper::arrayUnique($loadJs);
 
 if (count($loadJs) > 1 || $loadJs[0] === true)
 {
-	HTMLHelper::_('script', 'mod_jtfavorites/jtfavoritesClickAction.js', array('version' => 'auto', 'relative' => true));
+	HTMLHelper::_('script', 'mod_jtfavorites/jtfavoritesClickAction.min.js', array('version' => 'auto', 'relative' => true));
 }
 
 echo $layoutRenderer->render($displayData);

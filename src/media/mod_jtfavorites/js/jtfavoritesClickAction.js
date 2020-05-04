@@ -126,16 +126,24 @@ JtFavorites = window.JtFavorites || {};
 		JtFavorites.submitform(task);
 		return false;
 	};
-
-	/**
-	 * USED IN: all over :)
-	 *
-	 * @param id
-	 * @param task
-	 * @return
-	 */
-	window.listItemTask = function (id, task) {
-		return JtFavorites.listItemTask(id, task);
-	};
-
 }(JtFavorites, document));
+
+
+function ready(fn) {
+	if (document.readyState != 'loading'){
+		fn();
+	} else {
+		document.addEventListener('DOMContentLoaded', fn);
+	}
+}
+
+function changeListItemTask()
+{
+	var items = document.querySelectorAll('#jtFavoritesForm *[onclick*=listItemTask]');
+	Array.prototype.forEach.call(items, function (elm) {
+		var onclick = elm.getAttribute('onclick');
+		elm.setAttribute('onclick', onclick.replace('listItemTask', 'JtFavorites.listItemTask'));
+	});
+}
+
+ready(changeListItemTask);
