@@ -19,7 +19,7 @@ extract($displayData);
  * @var   string      $title  Title of grouped favorites (Module/Plugins)
  * @var   string      $type   Type of favorite (modules/plugins)
  * @var   array       $items  Grouped list of favorites (site/administator)
- * @var   string      $task   Position of this module for clickaction
+ * @var   string      $task   Form id for this position using as clickaction too
  */
 ?>
 <div class="table table-striped unstyled <?php echo $type; ?>">

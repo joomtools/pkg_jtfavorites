@@ -52,12 +52,6 @@ JtFavorites = window.JtFavorites || {};
 	 * @returns  {void}
 	 */
 	JtFavorites.submitform = function (task, form, validate) {
-
-		// Access the form element...
-		if (!form) {
-			form = document.getElementById('jtFavoritesForm');
-		}
-
 		// ...and take over its submit event.
 		form.addEventListener("submit", function (event) {
 			event.preventDefault();
@@ -91,6 +85,14 @@ JtFavorites = window.JtFavorites || {};
 		form.removeChild(button);
 	};
 
+	JtFavorites.findAncestorForm = function (string) {
+		var formId = string.match(/^[a-zA-Z]+/);
+
+		if (formId === null || typeof formId === 'undefined') return false;
+
+		return document.querySelector('#' + formId.toString());
+	};
+
 	/**
 	 * USED IN: all over :)
 	 *
@@ -100,7 +102,7 @@ JtFavorites = window.JtFavorites || {};
 	 * @return {boolean}
 	 */
 	JtFavorites.listItemTask = function (id, task) {
-		var f = document.jtFavoritesForm,
+		var f = JtFavorites.findAncestorForm(id),
 			i = 0, cbx,
 			cb = f[id];
 
@@ -123,27 +125,27 @@ JtFavorites = window.JtFavorites || {};
 
 		f.setAttribute("action", f.getAttribute('data-' + extension + '-action'));
 
-		JtFavorites.submitform(task);
+		JtFavorites.submitform(task, f);
 		return false;
 	};
 }(JtFavorites, document));
 
-
-function ready(fn) {
-	if (document.readyState != 'loading'){
+function modJtFavReady(fn) {
+	if (document.readyState != 'loading') {
 		fn();
 	} else {
 		document.addEventListener('DOMContentLoaded', fn);
 	}
 }
 
-function changeListItemTask()
-{
-	var items = document.querySelectorAll('#jtFavoritesForm *[onclick*=listItemTask]');
+// Must be adapted if the call 'listItemTask' is changed in Joomla
+function changeListItemTask() {
+	var items = document.querySelectorAll('.mod_jtfavorites *[onclick*=listItemTask]');
 	Array.prototype.forEach.call(items, function (elm) {
 		var onclick = elm.getAttribute('onclick');
 		elm.setAttribute('onclick', onclick.replace('listItemTask', 'JtFavorites.listItemTask'));
 	});
 }
 
-ready(changeListItemTask);
+modJtFavReady(changeListItemTask);
+

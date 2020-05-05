@@ -7,6 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Router\Route;
@@ -19,15 +20,15 @@ extract($displayData);
  * @var   FileLayout  $this
  * @var   array       $modules          List of favorites modules
  * @var   array       $plugins          List of favorites plugins
- * @var   string      $task             Position of this module for clickaction
+ * @var   string      $task             Form id for this position using as clickaction too
  * @var   string      $moduleclass_sfx  Module param
  */
 
 // TODO Javascript in Datei auslagern (Media Ordner)
 
 ?>
-<div class="mod_jtfavorites<?php echo $moduleclass_sfx; ?>">
-	<form method="post" name="jtFavoritesForm" id="jtFavoritesForm"
+<div class="mod_jtfavorites <?php echo $moduleclass_sfx; ?>">
+	<form method="post" name="<?php echo $task; ?>" id="<?php echo $task; ?>"
 		  data-modules-action="<?php echo Route::_('index.php?option=com_modules'); ?>"
 		  data-plugins-action="<?php echo Route::_('index.php?option=com_plugins&view=plugins'); ?>"
 	>
@@ -51,6 +52,6 @@ extract($displayData);
 		<?php endif; ?>
 		<input type="hidden" name="task" value=""/>
 		<input type="hidden" name="boxchecked" value="0"/>
-		<?php echo JHtml::_('form.token'); ?>
+		<?php echo HTMLHelper::_('form.token'); ?>
 	</form>
 </div>

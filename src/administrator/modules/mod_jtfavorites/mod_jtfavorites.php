@@ -8,16 +8,18 @@
  * @license      GNU General Public License version 3 or later
  */
 
-/**
- * @var   object  $params  Module params
- */
-
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\Utilities\ArrayHelper;
+use Joomla\Registry\Registry;
 
 defined('_JEXEC') or die;
+
+/**
+ * @var   object    $module  Module objekt
+ * @var   Registry  $params  Module params
+ */
 
 // Include dependencies.
 JLoader::register('ModJtFavoritesHelper', __DIR__ . '/helper.php');
@@ -31,9 +33,10 @@ if (!$isEnabledPlugin)
 }
 
 // Define params
-$linkState        = $params->get('allow_change_state');
+$isRoot           = Factory::getUser()->authorise('root.1');
+$changeState      = $params->get('allow_change_state');
 $linkItem         = $params->get('link_to_item');
-$showTrashedItems = filter_var($params->get('show_trashed_items'), FILTER_VALIDATE_BOOLEAN);
+$showTrashedItems = $isRoot ?: filter_var($params->get('show_trashed_items'), FILTER_VALIDATE_BOOLEAN);
 $moduleclass_sfx  = $params->get('moduleclass_sfx', '');
 
 // Get the list of favorites from database
@@ -50,20 +53,23 @@ foreach ($items as $k => &$item)
 	// Validate authorization
 	$item->access = ModJtFavoritesHelper::validateAuthorizations($extension, $item->assets_name);
 
-	$loadJs[$item->extension_id] = $item->access['core.edit.state'];
 	if ($item->access !== false)
 	{
-		if (!$linkState)
+		if (!$isRoot)
 		{
-			$loadJs[$item->extension_id]     = false;
-			$item->access['core.edit.state'] = false;
-		}
+			if (!$changeState)
+			{
+				$item->access['core.edit.state'] = false;
+			}
 
-		if (!$linkState)
-		{
-			$item->access['core.edit'] = false;
+			if (!$linkItem)
+			{
+				$item->access['core.edit'] = false;
+			}
 		}
 	}
+
+	$loadJs[$item->extension_id] = $item->access['core.edit.state'];
 
 	// Remove item, if access is not allowed
 	if ($item->access === false
@@ -160,7 +166,7 @@ $displayData = array(
 	'modules'         => !empty($items['module']) ? $items['module'] : null,
 	'plugins'         => !empty($items['plugin']) ? $items['plugin'] : null,
 	'moduleclass_sfx' => $moduleclass_sfx,
-	'task'            => $position,
+	'task'            => $position . 'JtFavForm',
 );
 
 $loadJs = array_values($loadJs);
