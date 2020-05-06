@@ -32,127 +32,15 @@ if (!$isEnabledPlugin)
 	return;
 }
 
-// Define params
-$isRoot           = Factory::getUser()->authorise('root.1');
-$changeState      = $params->get('allow_change_state');
-$linkItem         = $params->get('link_to_item');
-$showTrashedItems = $isRoot ?: filter_var($params->get('show_trashed_items'), FILTER_VALIDATE_BOOLEAN);
 $moduleclass_sfx  = $params->get('moduleclass_sfx', '');
 
 // Get the list of favorites from database
-$items = ModJtFavoritesHelper::getList();
-
-$loadJs       = array();
-$toDeleteInDb = array();
-
-// Create item list for layout output
-foreach ($items as $k => &$item)
-{
-	list ($extension, $item->type, $item->extension_id) = explode('.', $item->assets_name);
-
-	// Validate authorization
-	$item->access = ModJtFavoritesHelper::validateAuthorizations($extension, $item->assets_name);
-
-	if ($item->access !== false)
-	{
-		if (!$isRoot)
-		{
-			if (!$changeState)
-			{
-				$item->access['core.edit.state'] = false;
-			}
-
-			if (!$linkItem)
-			{
-				$item->access['core.edit'] = false;
-			}
-		}
-	}
-
-	$loadJs[$item->extension_id] = $item->access['core.edit.state'];
-
-	// Remove item, if access is not allowed
-	if ($item->access === false
-		|| ($item->access['core.edit.state'] === false && $item->access['core.edit'] === false)
-		|| ($item->state == -2 && $showTrashedItems === false))
-	{
-		if ($item->access === false)
-		{
-			// Permission revoked, remove entry from database
-			$toDeleteInDb[] = array(
-				'user_id'     => Factory::getUser()->id,
-				'assets_name' => $item->assets_name,
-			);
-		}
-
-		unset($items[$k], $loadJs[$item->extension_id]);
-
-		continue;
-	}
-
-	// Load extension language file, if the title is not individualized
-	if (!empty($item->extension_name))
-	{
-		ModJtFavoritesHelper::loadExtensionLanguage($item->extension_name, $item->type, $item->client_id);
-	}
-
-	// Translate title
-	$item->title = Text::_($item->title);
-
-	// Distinction between page and administration extensions
-	$item->client = $item->client_id ? 'administrator' : 'site';
-
-	// Set param to show trashed items
-	$item->access['show.trashed.items'] = $showTrashedItems;
-
-	// Clean up the element for layout output
-	unset(
-		$item->client_id,
-		$item->assets_name,
-		$item->extension_name,
-		$item->extension,
-	);
-}
-
-// Delete entries from database
-if (!empty($toDeleteInDb))
-{
-	ModJtFavoritesHelper::deleteDbEntry($toDeleteInDb);
-}
+$items = ModJtFavoritesHelper::getList($params);
 
 if (count($items) < 1)
 {
 	return;
 }
-
-// Rearrange item list by type
-$items = ArrayHelper::pivot($items, 'type');
-
-// Rearrange type list by client
-foreach ($items as $k => $item)
-{
-
-	// Equalization of the entries as array list
-	if (!is_array($item))
-	{
-		$items[$k] = array($item);
-	}
-
-	$items[$k] = ArrayHelper::pivot($items[$k], 'client');
-
-	foreach ($items[$k] as $client => $clientlist)
-	{
-		// Equalization of the entries as array list
-		if (!is_array($clientlist))
-		{
-			$items[$k][$client] = array($clientlist);
-		}
-
-		$items[$k][$client] = ArrayHelper::sortObjects($items[$k][$client], 'title');
-	}
-}
-
-unset($item, $client, $clientlist);
 
 $position = $module->position;
 $layout   = $params->get('layout', 'default');
@@ -169,10 +57,7 @@ $displayData = array(
 	'task'            => $position . 'JtFavForm',
 );
 
-$loadJs = array_values($loadJs);
-$loadJs = ArrayHelper::arrayUnique($loadJs);
-
-if (count($loadJs) > 1 || $loadJs[0] === true)
+if (ModJtFavoritesHelper::$loadJs)
 {
 	HTMLHelper::_('script', 'mod_jtfavorites/jtfavoritesClickAction.min.js', array('version' => 'auto', 'relative' => true));
 }

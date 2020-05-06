@@ -15,25 +15,39 @@ use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\Utilities\ArrayHelper;
 
 /**
  * Helper for mod_jtfavorites
  *
  * @since   1.0.0
  */
-abstract class ModJtFavoritesHelper
+class ModJtFavoritesHelper
 {
+	/**
+	 * @var     int
+	 * @since   1.0.0
+	 */
 	public static $row = 0;
+
+	/**
+	 * @var     bool
+	 * @since   1.0.0
+	 */
+	public static $loadJs = true;
 
 	/**
 	 * Get a list of articles.
 	 *
-	 * @return   mixed  An array of entries, or false on error.
+	 * @param   \Joomla\Registry\Registry  $params  Module params
+	 *
+	 * @return   array  A list of entries.
 	 *
 	 * @since   1.0.0
 	 */
-	public static function getList()
+	public static function getList($params)
 	{
+		$self   = new self;
 		$db     = Factory::getDbo();
 		$userId = (int) Factory::getUser()->get('id');
 
@@ -73,7 +87,141 @@ abstract class ModJtFavoritesHelper
 				. ', \'.\', -1)=' . $db->qn('plg.extension_id'))
 			->where($db->qn('jtf.user_id') . '=' . $userId);
 
-		return $db->setQuery($query)->loadObjectList();
+		$result = $db->setQuery($query)->loadObjectList();
+		$result = $self->sortList($result, $params);
+
+		return $result;
+	}
+
+	/**
+	 * @param   array                      $items   Object list with database entries
+	 * @param   \Joomla\Registry\Registry  $params  Module params
+	 *
+	 * @return   array
+	 * @since    1.0.0
+	 */
+	private function sortList($items, $params)
+	{
+		$loadJs           = array();
+		$toDeleteInDb     = array();
+		$isRoot           = Factory::getUser()->authorise('root.1');
+		$changeState      = $params->get('allow_change_state');
+		$linkItem         = $params->get('link_to_item');
+		$showTrashedItems = $isRoot ?: filter_var($params->get('show_trashed_items'), FILTER_VALIDATE_BOOLEAN);
+
+		// Create item list for layout output
+		foreach ($items as $k => &$item)
+		{
+			list ($extension, $item->type, $item->extension_id) = explode('.', $item->assets_name);
+
+			// Validate authorization
+			$item->access = $this->validateAuthorizations($extension, $item->assets_name);
+
+			if ($item->access !== false)
+			{
+				if (!$isRoot)
+				{
+					if (!$changeState)
+					{
+						$item->access['core.edit.state'] = false;
+					}
+
+					if (!$linkItem)
+					{
+						$item->access['core.edit'] = false;
+					}
+				}
+			}
+
+			$loadJs[$item->extension_id] = $item->access['core.edit.state'];
+
+			// Remove item, if access is not allowed
+			if ($item->access === false
+				|| ($item->access['core.edit.state'] === false && $item->access['core.edit'] === false)
+				|| ($item->state == -2 && $showTrashedItems === false))
+			{
+				if ($item->access === false)
+				{
+					// Permission revoked, remove entry from database
+					$toDeleteInDb[] = array(
+						'user_id'     => Factory::getUser()->id,
+						'assets_name' => $item->assets_name,
+					);
+				}
+
+				unset($items[$k], $loadJs[$item->extension_id]);
+
+				continue;
+			}
+
+			// Load extension language file, if the title is not individualized
+			if (!empty($item->extension_name))
+			{
+				$this->loadExtensionLanguage($item->extension_name, $item->type, $item->client_id);
+			}
+
+			// Translate title
+			$item->title = Text::_($item->title);
+
+			// Distinction between page and administration extensions
+			$item->client = $item->client_id ? 'administrator' : 'site';
+
+			// Set param to show trashed items
+			$item->access['show.trashed.items'] = $showTrashedItems;
+
+			// Clean up the element for layout output
+			unset(
+				$item->client_id,
+				$item->assets_name,
+				$item->extension_name,
+				$item->extension,
+			);
+		}
+
+		// Delete entries from database
+		if (!empty($toDeleteInDb))
+		{
+			$this->deleteDbEntry($toDeleteInDb);
+		}
+
+		if (count($items) < 1)
+		{
+			return array();
+		}
+
+		// Rearrange item list by type
+		$items = ArrayHelper::pivot($items, 'type');
+
+		// Rearrange type list by client
+		foreach ($items as $k => $item)
+		{
+
+			// Equalization of the entries as array list
+			if (!is_array($item))
+			{
+				$items[$k] = array($item);
+			}
+
+			$items[$k] = ArrayHelper::pivot($items[$k], 'client');
+
+			foreach ($items[$k] as $client => $clientlist)
+			{
+				// Equalization of the entries as array list
+				if (!is_array($clientlist))
+				{
+					$items[$k][$client] = array($clientlist);
+				}
+
+				$items[$k][$client] = ArrayHelper::sortObjects($items[$k][$client], 'title');
+			}
+		}
+
+		$loadJs = array_values($loadJs);
+		$loadJs = ArrayHelper::arrayUnique($loadJs);
+
+		self::$loadJs = (count($loadJs) > 1 || $loadJs[0] === true);
+
+		return $items;
 	}
 
 	/**
@@ -85,7 +233,7 @@ abstract class ModJtFavoritesHelper
 	 * @return   array|bool  false if not allowed, or asrray with permissions
 	 * @since    1.0.0
 	 */
-	public static function validateAuthorizations($extension, $assetsName)
+	private function validateAuthorizations($extension, $assetsName)
 	{
 		$neededPermissions = array(
 			// Access to backend
@@ -126,6 +274,66 @@ abstract class ModJtFavoritesHelper
 	}
 
 	/**
+	 * Load the extension language file
+	 *
+	 * @param   string  $extension  The extension (com_modules/com_plugins)
+	 * @param   string  $type       The extension type (module/plugin)
+	 * @param   int     $client_id  The client_id (0 = site / 1 = adminstration)
+	 *
+	 * @return   void
+	 * @since    1.0.0
+	 */
+	private function loadExtensionLanguage($extension, $type, $client_id = 0)
+	{
+		$basePath = JPATH_SITE;
+
+		$extensionPath = $type . 's/' . $extension;
+
+		if ($type == 'plugin')
+		{
+			list($_, $folder, $element) = explode('_', $extension);
+
+			$extensionPath = $type . 's/' . $folder . '/' . $element;
+		}
+
+		if ($client_id)
+		{
+			$basePath = JPATH_ADMINISTRATOR;
+		}
+
+		$path = $basePath . '/' . $extensionPath;
+
+		$lang = Factory::getLanguage();
+		$lang->load($extension, $path, null, true, false);
+		$lang->load($extension . '.sys', $path, null, true, false);
+	}
+
+	/**
+	 * Delete entries from database
+	 *
+	 * @param   array  $rows  The entries to delete from database
+	 *
+	 * @return   void
+	 * @since    1.0.0
+	 */
+	private function deleteDbEntry($rows)
+	{
+		$db = Factory::getDbo();
+
+		PluginHelper::importPlugin('system', 'jtfavorites');
+		$dispatcher = JEventDispatcher::getInstance();
+
+		foreach ($rows as $row)
+		{
+			$options                   = array();
+			$options['where']['and'][] = $db->qn('user_id') . '=' . $db->q($row['user_id']);
+			$options['where']['and'][] = $db->qn('assets_name') . '=' . $db->q($row['assets_name']);
+
+			$dispatcher->trigger('deleteDbEntry', array($options));
+		}
+	}
+
+	/**
 	 * Load FileLayout renderer
 	 *
 	 * @param   string  $layout  Layout name
@@ -154,6 +362,7 @@ abstract class ModJtFavoritesHelper
 	 */
 	public static function isEnabledPlugin()
 	{
+		$self      = new self;
 		$isEnabled = PluginHelper::isEnabled('system', 'jtfavorites');
 
 		if ($isEnabled)
@@ -162,10 +371,10 @@ abstract class ModJtFavoritesHelper
 		}
 
 		// Load languagefiles
-		self::loadExtensionLanguage('plg_system_jtfavorites', 'plugin');
+		$self->loadExtensionLanguage('plg_system_jtfavorites', 'plugin');
 
 		$access   = Factory::getUser()->authorise('core.manage', 'com_plugins');
-		$pluginId = self::getPluginId();
+		$pluginId = $self->getPluginId();
 		$plgTitle = Text::_('PLG_JTFAVORITES_XML_NAME');
 		$msg      = Text::sprintf('MOD_JTFAVORITES_NOTICE_ENABLE_PLUGIN', $pluginId, $plgTitle);
 		$msg      = $access ? $msg : strip_tags($msg, '<strong>');
@@ -176,47 +385,12 @@ abstract class ModJtFavoritesHelper
 	}
 
 	/**
-	 * Load the extension language file
-	 *
-	 * @param   string  $extension  The extension (com_modules/com_plugins)
-	 * @param   string  $type       The extension type (module/plugin)
-	 * @param   int     $client_id  The client_id (0 = site / 1 = adminstration)
-	 *
-	 * @return   void
-	 * @since    1.0.0
-	 */
-	public static function loadExtensionLanguage($extension, $type, $client_id = 0)
-	{
-		$basePath = JPATH_SITE;
-
-		$extensionPath = $type . 's/' . $extension;
-
-		if ($type == 'plugin')
-		{
-			list($_, $folder, $element) = explode('_', $extension);
-
-			$extensionPath = $type . 's/' . $folder . '/' . $element;
-		}
-
-		if ($client_id)
-		{
-			$basePath = JPATH_ADMINISTRATOR;
-		}
-
-		$path = $basePath . '/' . $extensionPath;
-
-		$lang = Factory::getLanguage();
-		$lang->load($extension, $path, null, true, false);
-		$lang->load($extension . '.sys', $path, null, true, false);
-	}
-
-	/**
 	 * Get the plugin id from database
 	 *
 	 * @return   mixed|null
 	 * @since    1.0.0
 	 */
-	protected static function getPluginId()
+	private function getPluginId()
 	{
 		$db    = Factory::getDbo();
 		$query = $db->getQuery(true)
@@ -228,30 +402,5 @@ abstract class ModJtFavoritesHelper
 
 		return $db->loadResult();
 
-	}
-
-	/**
-	 * Delete entries from database
-	 *
-	 * @param   array  $rows  The entries to delete from database
-	 *
-	 * @return   void
-	 * @since    1.0.0
-	 */
-	public static function deleteDbEntry($rows)
-	{
-		$db = Factory::getDbo();
-
-		PluginHelper::importPlugin('system', 'jtfavorites');
-		$dispatcher = JEventDispatcher::getInstance();
-
-		foreach ($rows as $row)
-		{
-			$options                   = array();
-			$options['where']['and'][] = $db->qn('user_id') . '=' . $db->q($row['user_id']);
-			$options['where']['and'][] = $db->qn('assets_name') . '=' . $db->q($row['assets_name']);
-
-			$dispatcher->trigger('deleteDbEntry', array($options));
-		}
 	}
 }
