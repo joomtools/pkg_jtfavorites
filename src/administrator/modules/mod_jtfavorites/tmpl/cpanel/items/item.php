@@ -39,7 +39,7 @@ $target      = array(
 		<?php echo HTMLHelper::_('jgrid.published', (int) $item->state, $row, $type . '.', $item->access['core.edit.state'], $clickAction); ?>
 		<?php // Create dropdown items and render the dropdown list. ?>
 		<?php if ($item->access['show.trashed.items'] && $type == 'modules') : ?>
-			<?php HTMLHelper::_('actionsdropdown.' . ((int) $item->state === -2 ? 'un' : '') . 'trash', $clickAction); ?>
+			<?php HTMLHelper::_('actionsdropdown.' . ((int) $item->state === -2 ? 'un' : '') . 'trash', $clickAction . $row, $type); ?>
 			<?php echo HTMLHelper::_('actionsdropdown.render', $item->title); ?>
 		<?php endif; ?>
 		<?php if (!empty($editor)) : ?>
