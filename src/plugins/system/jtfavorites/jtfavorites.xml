@@ -21,7 +21,7 @@
 	</uninstall>
 	<update>
 		<schemas>
-			<schemapath type="mysql">install/sql/updates/mysql</schemapath>
+			<schemapath type="mysql">install/sql/update/mysql</schemapath>
 		</schemas>
 	</update>
 	<files>
