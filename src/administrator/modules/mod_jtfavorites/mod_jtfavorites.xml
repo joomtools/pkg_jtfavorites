@@ -13,7 +13,7 @@
 	<files>
 		##MODULE_FILES##
 	</files>
-	<media destination="mod_jtfavorites" folder="media">
+	<media destination="mod_jtfavorites" folder="media/mod_jtfavorites">
 		##MEDIA_FILES##
 	</media>
 
