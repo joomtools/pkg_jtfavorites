@@ -8,6 +8,7 @@
  */
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Filter\OutputFilter;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
@@ -33,6 +34,7 @@ $target      = array(
 	'modules' => 'index.php?option=com_modules&task=module.edit&id=' . $extId,
 	'plugins' => 'index.php?option=com_plugins&task=plugin.edit&extension_id=' . $extId,
 ); ?>
+<!-- Start mod_jtfavorites.cpanel.items.item -->
 <tr class="row<?php echo $row % 2; ?>">
 	<td class="span1">
 	<span class="btn-group click-action">
@@ -50,7 +52,7 @@ $target      = array(
 	<td>
 	<span class="ext-title">
 	<?php if ($item->access['core.edit']) : ?>
-		<a class="hasTooltip" href="<?php echo Route::_($target[$type]); ?>"
+		<a class="hasTooltip" href="<?php echo OutputFilter::ampReplace($target[$type]); ?>"
 		   title="<?php echo Text::_('JACTION_EDIT'); ?>">
 			<strong><?php echo $item->title; ?></strong>
 		</a>
@@ -65,3 +67,4 @@ $target      = array(
 		<?php $row++; ?>
 	</td>
 </tr>
+<!-- End mod_jtfavorites.cpanel.items.item -->

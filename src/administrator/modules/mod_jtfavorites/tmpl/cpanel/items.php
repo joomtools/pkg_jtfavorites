@@ -22,6 +22,7 @@ extract($displayData);
  * @var   string      $task   Form id for this position using as clickaction too
  */
 ?>
+<!-- Start mod_jtfavorites.cpanel.items -->
 <div class="table table-striped unstyled <?php echo $type; ?>">
 	<?php if (!empty($items['site'])) : ?>
 		<table class="site table table-hover table-bordered table-striped unstyled">
@@ -38,7 +39,7 @@ extract($displayData);
 						'type' => $type,
 						'task' => $task,
 					); ?>
-					<?php echo $this->sublayout('item', $itemSublayout) ?>
+					<?php echo $this->sublayout('item', $itemSublayout); ?>
 			<?php endforeach; ?>
 			</tbody>
 		</table>
@@ -53,9 +54,10 @@ extract($displayData);
 						'type' => $type,
 						'task' => $task,
 					); ?>
-					<?php echo $this->sublayout('item', $itemSublayout) ?>
+					<?php echo $this->sublayout('item', $itemSublayout); ?>
 			<?php endforeach; ?>
 			</tbody>
 		</table>
 	<?php endif; ?>
 </div>
+<!-- End mod_jtfavorites.cpanel.items -->

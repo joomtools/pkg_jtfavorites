@@ -21,13 +21,12 @@ extract($displayData);
  * @var   array       $modules          List of favorites modules
  * @var   array       $plugins          List of favorites plugins
  * @var   string      $task             Form id for this position using as clickaction too
- * @var   string      $moduleclass_sfx  Module param
+ * @var   string      $moduleclass_sfx  Module class suffix
  */
 
-// TODO Javascript in Datei auslagern (Media Ordner)
-
 ?>
-<div class="mod_jtfavorites <?php echo $moduleclass_sfx; ?>">
+<!-- Start mod_jtfavorites.cpanel -->
+<div class="mod_jtfavorites cpanel<?php echo $moduleclass_sfx; ?>">
 	<form method="post" name="<?php echo $task; ?>" id="<?php echo $task; ?>"
 		  data-modules-action="<?php echo Route::_('index.php?option=com_modules'); ?>"
 		  data-plugins-action="<?php echo Route::_('index.php?option=com_plugins&view=plugins'); ?>"
@@ -55,3 +54,4 @@ extract($displayData);
 		<?php echo HTMLHelper::_('form.token'); ?>
 	</form>
 </div>
+<!-- End mod_jtfavorites.cpanel -->
