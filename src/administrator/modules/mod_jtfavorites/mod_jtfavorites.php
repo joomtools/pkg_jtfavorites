@@ -51,6 +51,7 @@ $layout = $layout !== '_:default' ? $layout : '_:' . $position;
 $layoutRenderer = ModJtFavoritesHelper::getLayoutRenderer($layout);
 
 $displayData = array(
+	'moduleTitle'     => $module->title,
 	'modules'         => !empty($items['module']) ? $items['module'] : null,
 	'plugins'         => !empty($items['plugin']) ? $items['plugin'] : null,
 	'moduleclass_sfx' => $moduleclass_sfx,
