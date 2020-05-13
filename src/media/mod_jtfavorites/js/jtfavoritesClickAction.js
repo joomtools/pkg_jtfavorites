@@ -128,6 +128,19 @@ JtFavorites = window.JtFavorites || {};
 		JtFavorites.submitform(task, f);
 		return false;
 	};
+
+	/**
+	 * Exchange the call
+	 * Must be adapted if the call 'listItemTask' is changed in Joomla
+	 */
+	JtFavorites.changeListItemTask = function () {
+		var items = document.querySelectorAll('.mod_jtfavorites *[onclick*=listItemTask]');
+		Array.prototype.forEach.call(items, function (elm) {
+			var onclick = elm.getAttribute('onclick');
+			elm.setAttribute('onclick', onclick.replace('listItemTask', 'JtFavorites.listItemTask'));
+		});
+	};
+
 }(JtFavorites, document));
 
 function modJtFavReady(fn) {
@@ -138,14 +151,5 @@ function modJtFavReady(fn) {
 	}
 }
 
-// Must be adapted if the call 'listItemTask' is changed in Joomla
-function changeListItemTask() {
-	var items = document.querySelectorAll('.mod_jtfavorites *[onclick*=listItemTask]');
-	Array.prototype.forEach.call(items, function (elm) {
-		var onclick = elm.getAttribute('onclick');
-		elm.setAttribute('onclick', onclick.replace('listItemTask', 'JtFavorites.listItemTask'));
-	});
-}
-
-modJtFavReady(changeListItemTask);
+modJtFavReady(JtFavorites.changeListItemTask);
 
