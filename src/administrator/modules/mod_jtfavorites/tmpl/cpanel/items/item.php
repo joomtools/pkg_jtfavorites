@@ -26,7 +26,7 @@ extract($displayData);
  */
 
 $canCheckin  = Factory::getUser()->authorise('core.manage', 'com_checkin');
-$editor      = (int) $item->editor > 0 ? Factory::getUser((int) $item->editor)->name : '';
+$editor      = (int) $item->editor ? Factory::getUser((int) $item->editor)->name : '';
 $row         =& ModJtFavoritesHelper::$row;
 $clickAction = $task . (int) $item->extension_id . 'Cb';
 $extId       = (int) $item->extension_id;
@@ -60,7 +60,7 @@ $target      = array(
 		<strong><?php echo $item->title; ?></strong>
 	<?php endif; ?>
 	</span>
-	<span style="display:none;">
+	<span class="hidden">
 		<?php echo HTMLHelper::_('grid.id', $row, $extId, false, 'cid', $clickAction); ?>
 	</span>
 

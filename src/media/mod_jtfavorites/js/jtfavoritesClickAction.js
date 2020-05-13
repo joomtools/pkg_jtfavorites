@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later
  */
 
-JtFavorites = window.JtFavorites || {};
+var JtFavorites = window.JtFavorites || {};
 
 (function (JtFavorites, document) {
 	"use strict";
@@ -15,9 +15,9 @@ JtFavorites = window.JtFavorites || {};
 	/**
 	 * Ajax send form
 	 *
-	 * @param  {node}    form      The form element
+	 * @param   {node}  form  The form element
 	 *
-	 * @returns  {void}
+	 * @returns   {void}
 	 */
 	JtFavorites.sendData = function (form) {
 		var XHR = new XMLHttpRequest();
@@ -45,11 +45,11 @@ JtFavorites = window.JtFavorites || {};
 	/**
 	 * Generic submit form
 	 *
-	 * @param  {String}  task      The given task
-	 * @param  {node}    form      The form element
-	 * @param  {bool}    validate  The form element
+	 * @param   {String}  task      The given task
+	 * @param   {node}    form      The form element
+	 * @param   {bool}    validate  The form element
 	 *
-	 * @returns  {void}
+	 * @returns   {void}
 	 */
 	JtFavorites.submitform = function (task, form, validate) {
 		// ...and take over its submit event.
@@ -96,10 +96,10 @@ JtFavorites = window.JtFavorites || {};
 	/**
 	 * USED IN: all over :)
 	 *
-	 * @param  {string}  id    The id
-	 * @param  {string}  task  The task
+	 * @param   {string}  id    The id
+	 * @param   {string}  task  The task
 	 *
-	 * @return {boolean}
+	 * @return   {boolean}
 	 */
 	JtFavorites.listItemTask = function (id, task) {
 		var f = JtFavorites.findAncestorForm(id),
@@ -140,7 +140,6 @@ JtFavorites = window.JtFavorites || {};
 			elm.setAttribute('onclick', onclick.replace('listItemTask', 'JtFavorites.listItemTask'));
 		});
 	};
-
 }(JtFavorites, document));
 
 function modJtFavReady(fn) {
