@@ -38,7 +38,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Load the language file on instantiation.
 	 *
-	 * @var     boolean
+	 * @var     bool
 	 * @since   1.0.0
 	 */
 	protected $autoloadLanguage = true;
@@ -99,8 +99,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   string  $context  The context for the data
 	 * @param   object  $data     An object containing the data for the form.
 	 *
-	 * @return   boolean
-	 *
+	 * @return   bool
 	 * @since    1.0.0
 	 */
 	public function onContentPrepareData($context, $data)
@@ -149,8 +148,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   Form   $form  The form to be altered.
 	 * @param   mixed  $data  The associated data for the form.
 	 *
-	 * @return   boolean
-	 *
+	 * @return   bool
 	 * @throws   \Exception
 	 * @since    1.0.0
 	 */
@@ -178,11 +176,10 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @param   string   $context  The context for the extension passed to the plugin.
 	 * @param   array    $pks      A list of primary key ids of the extensions that has changed state.
-	 * @param   integer  $state    The value of the state that the extensions has been changed to.
+	 * @param   int      $state    The value of the state that the extensions has been changed to.
 	 *
 	 * @return   void
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	public function onContentChangeState($context, $pks, $state)
 	{
@@ -220,11 +217,10 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @param   string   $context  The extension
 	 * @param   JTable   $table    DataBase Table object
-	 * @param   boolean  $isNew    If the extension is new or not
+	 * @param   bool     $isNew    If the extension is new or not
 	 *
 	 * @return   void
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	public function onExtensionAfterSave($context, $table, $isNew)
 	{
@@ -295,8 +291,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   JTable  $table    DataBase Table object
 	 *
 	 * @return   void
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	public function onExtensionAfterDelete($context, $table)
 	{
@@ -315,12 +310,11 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * Method is called when an extension is uninstalled
 	 *
 	 * @param   JInstaller  $installer  Installer instance
-	 * @param   integer     $eid        Extension id
-	 * @param   integer     $result     Installation result
+	 * @param   int         $eid        Extension id
+	 * @param   int         $result     Installation result
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
+	 * @return   void
+	 * @since    1.0.0
 	 */
 	public function onExtensionAfterUninstall($installer, $eid, $result)
 	{
@@ -330,7 +324,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 		}
 
 		$options                  = array();
-		$options['where']['or'][] = $this->db->qn('assets_name') . ' LIKE ' . $this->db->q('%.' . $eid);
+		$options['where']['or'][] = $this->db->qn('assets_name') . ' LIKE ' . $this->db->q('%.' . (int) $eid);
 
 		// Delete all uninstalled extensions entries from database
 		$this->deleteDbEntry($options);
@@ -344,8 +338,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   string  $context  The extension
 	 *
 	 * @return   bool
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	private function validateAccess($context)
 	{
@@ -403,8 +396,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * Validate user permissions
 	 *
 	 * @return   bool
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	private function validateAuthorizations()
 	{
@@ -433,8 +425,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   array  $options  The options to create the condition.
 	 *
 	 * @return   bool
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	private function findInDb($options)
 	{
@@ -457,8 +448,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   array  $options  The options to create the condition.
 	 *
 	 * @return   bool
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	public function deleteDbEntry($options)
 	{
@@ -480,8 +470,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   array  $options  The options to create the condition.
 	 *
 	 * @return   bool
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	private function insertDbEntry($options)
 	{
@@ -499,8 +488,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   array  $options  The options to create the condition.
 	 *
 	 * @return   void
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	private function updateDbEntry($options)
 	{

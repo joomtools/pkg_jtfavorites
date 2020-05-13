@@ -37,7 +37,7 @@ $moduleclass_sfx  = $params->get('moduleclass_sfx', '');
 // Get the list of favorites from database
 $items = ModJtFavoritesHelper::getList($params);
 
-if (count($items) < 1)
+if (!count($items))
 {
 	return;
 }

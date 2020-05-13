@@ -25,6 +25,13 @@ use Joomla\Utilities\ArrayHelper;
 class ModJtFavoritesHelper
 {
 	/**
+	 * Define integer for the state 'trash'
+	 * @var     int
+	 * @since   1.0.0
+	 */
+	const TRASH = -2;
+
+	/**
 	 * @var     int
 	 * @since   1.0.0
 	 */
@@ -42,14 +49,13 @@ class ModJtFavoritesHelper
 	 * @param   \Joomla\Registry\Registry  $params  Module params
 	 *
 	 * @return   array  A list of entries.
-	 *
-	 * @since   1.0.0
+	 * @since    1.0.0
 	 */
 	public static function getList($params)
 	{
 		$self   = new self;
 		$db     = Factory::getDbo();
-		$userId = (int) Factory::getUser()->get('id');
+		$userId = Factory::getUser()->get('id');
 
 		$query = $db->getQuery(true);
 
@@ -85,7 +91,7 @@ class ModJtFavoritesHelper
 			->join('LEFT', $db->qn('#__extensions')
 				. ' AS plg ON SUBSTRING_INDEX(' . $db->qn('jtf.assets_name')
 				. ', \'.\', -1)=' . $db->qn('plg.extension_id'))
-			->where($db->qn('jtf.user_id') . '=' . $userId);
+			->where($db->qn('jtf.user_id') . '=' . (int) $userId);
 
 		$result = $db->setQuery($query)->loadObjectList();
 		$result = $self->sortList($result, $params);
@@ -117,38 +123,35 @@ class ModJtFavoritesHelper
 			// Validate authorization
 			$item->access = $this->validateAuthorizations($extension, $item->assets_name);
 
-			if ($item->access !== false)
+			if ($item->access !== false && !$isRoot)
 			{
-				if (!$isRoot)
+				if (!$changeState)
 				{
-					if (!$changeState)
-					{
-						$item->access['core.edit.state'] = false;
-					}
+					$item->access['core.edit.state'] = false;
+				}
 
-					if (!$linkItem)
-					{
-						$item->access['core.edit'] = false;
-					}
+				if (!$linkItem)
+				{
+					$item->access['core.edit'] = false;
 				}
 			}
 
 			$loadJs[$item->extension_id] = $item->access['core.edit.state'];
 
 			// Remove item, if access is not allowed
+			if ($item->access === false)
+			{
+				// Permission revoked, remove entry from database
+				$toDeleteInDb[] = array(
+					'user_id'     => Factory::getUser()->id,
+					'assets_name' => $item->assets_name,
+				);
+			}
+
 			if ($item->access === false
 				|| ($item->access['core.edit.state'] === false && $item->access['core.edit'] === false)
-				|| ($item->state == -2 && $showTrashedItems === false))
+				|| ($item->state == self::TRASH && $showTrashedItems === false))
 			{
-				if ($item->access === false)
-				{
-					// Permission revoked, remove entry from database
-					$toDeleteInDb[] = array(
-						'user_id'     => Factory::getUser()->id,
-						'assets_name' => $item->assets_name,
-					);
-				}
-
 				unset($items[$k], $loadJs[$item->extension_id]);
 
 				continue;
