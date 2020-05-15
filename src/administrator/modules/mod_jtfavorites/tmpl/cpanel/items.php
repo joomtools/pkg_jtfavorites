@@ -20,44 +20,39 @@ extract($displayData);
  * @var   string      $type   Type of favorite (modules/plugins)
  * @var   array       $items  Grouped list of favorites (site/administator)
  * @var   string      $task   Form id for this position using as clickaction too
+ * @var   string      $view   View for items output (tabbed/list)
  */
 ?>
 <!-- Start mod_jtfavorites.cpanel.items -->
-<div class="table table-striped unstyled <?php echo $type; ?>">
-	<?php if (!empty($items['site'])) : ?>
-		<table class="site table table-hover table-bordered table-striped unstyled">
-			<?php if ($type == 'modules') : ?>
-				<caption class="text-left"><h4><?php echo $title . ' - ' . Text::_('JSITE'); ?></h4></caption>
-			<?php endif; ?>
-			<?php if ($type == 'plugins') : ?>
-				<caption class="text-left"><h4><?php echo $title; ?></h4></caption>
+<?php if (!empty($items['JSITE']) || !empty($items['JADMINISTRATOR'])) : ?>
+	<?php foreach ($items as $interface => $itemList) : ?>
+		<?php if ($type == 'modules') : ?>
+			<?php $newTitle = JFilterOutput::ampReplace($title) . ' (' . Text::_($interface) . ')'; ?>
+		<?php endif; ?>
+		<?php if ($type == 'plugins') : ?>
+			<?php $newTitle = JFilterOutput::ampReplace($title); ?>
+		<?php endif; ?>
+		<?php if ($view == 'tabbed') : ?>
+			<?php echo JHtml::_('bootstrap.addTab', 'cpanelListFavorites', $type . strtolower($interface), $newTitle); ?>
+		<?php endif; ?>
+		<table class="table table-hover table-bordered table-striped unstyled">
+			<?php if ($view == 'list') : ?>
+				<caption class="text-left"><h4><?php echo $newTitle; ?></h4></caption>
 			<?php endif; ?>
 			<tbody>
-			<?php foreach ($items['site'] as $item) : ?>
-					<?php $itemSublayout = array(
-						'item' => $item,
-						'type' => $type,
-						'task' => $task,
-					); ?>
-					<?php echo $this->sublayout('item', $itemSublayout); ?>
+			<?php foreach ($itemList as $item) : ?>
+				<?php $itemSublayout = array(
+					'item' => $item,
+					'type' => $type,
+					'task' => $task,
+				); ?>
+				<?php echo $this->sublayout('item', $itemSublayout) ?>
 			<?php endforeach; ?>
 			</tbody>
 		</table>
-	<?php endif; ?>
-	<?php if (!empty($items['administrator'])) : ?>
-		<table class="administrator table table-hover table-bordered table-striped unstyled">
-			<caption class="text-left"><h4><?php echo $title . ' - ' . Text::_('JADMINISTRATOR'); ?></h4></caption>
-			<tbody>
-			<?php foreach ($items['administrator'] as $item) : ?>
-					<?php $itemSublayout = array(
-						'item' => $item,
-						'type' => $type,
-						'task' => $task,
-					); ?>
-					<?php echo $this->sublayout('item', $itemSublayout); ?>
-			<?php endforeach; ?>
-			</tbody>
-		</table>
-	<?php endif; ?>
-</div>
+		<?php if ($view == 'tabbed') : ?>
+			<?php echo JHtml::_('bootstrap.endTab'); ?>
+		<?php endif; ?>
+	<?php endforeach; ?>
+<?php endif; ?>
 <!-- End mod_jtfavorites.cpanel.items -->

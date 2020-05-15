@@ -21,6 +21,7 @@ extract($displayData);
  * @var   array       $modules          List of favorites modules
  * @var   array       $plugins          List of favorites plugins
  * @var   string      $task             Form id for this position using as clickaction too
+ * @var   string      $view             View for items output (tabbed/list)
  * @var   string      $moduleTitle      Module title
  * @var   string      $moduleclass_sfx  Module class suffix
  */
@@ -39,23 +40,31 @@ extract($displayData);
 		<div class="sidebar-nav">
 			<?php $parentLayout = new FileLayout('joomla.links.groupsopen'); ?>
 			<?php echo $parentLayout->render(''); ?>
+			<?php if ($view == 'tabbed') : ?>
+				<?php echo JHtml::_('bootstrap.startTabSet', 'iconListFavorites', array('active' => 'modulesjadministrator')); ?>
+			<?php endif; ?>
 			<?php if (!is_null($modules)) : ?>
 				<?php $sublayout = array(
 					'title' => Text::_('MOD_JTFAVORITES_VIEW_MODULES_TITLE'),
 					'type'  => 'modules',
 					'items' => $modules,
 					'task'  => $task,
+					'view'  => $view,
 				); ?>
 				<?php echo $this->sublayout('items', $sublayout); ?>
 			<?php endif; ?>
 			<?php if (!is_null($plugins)) : ?>
 				<?php $sublayout = array(
-					'title' => Text::_('MOD_JTFAVORITES_VIEW_PLUFINS_TITLE'),
+					'title' => Text::_('MOD_JTFAVORITES_VIEW_PLUGINS_TITLE'),
 					'type'  => 'plugins',
 					'items' => $plugins,
 					'task'  => $task,
+					'view'  => $view,
 				); ?>
 				<?php echo $this->sublayout('items', $sublayout); ?>
+			<?php endif; ?>
+			<?php if ($view == 'tabbed') : ?>
+				<?php echo JHtml::_('bootstrap.endTabSet'); ?>
 			<?php endif; ?>
 			<?php $parentLayout = new FileLayout('joomla.links.groupsclose'); ?>
 			<?php echo $parentLayout->render(''); ?>

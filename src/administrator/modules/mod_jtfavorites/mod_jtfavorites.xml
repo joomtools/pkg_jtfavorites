@@ -56,6 +56,17 @@
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
+				<field
+					name="show_items_tabbed"
+					type="radio"
+					label="MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_LABEL"
+					description="MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_DESC"
+					class="btn-group btn-group-yesno"
+					default="list"
+					>
+					<option value="tabbed">MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_OPTION_LABEL_AS_TAB</option>
+					<option value="list">MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_OPTION_LABEL_AS_LIST</option>
+				</field>
 			</fieldset>
 			<fieldset
 				name="advanced">

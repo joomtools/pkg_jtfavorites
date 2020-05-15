@@ -20,38 +20,36 @@ extract($displayData);
  * @var   string      $type   Type of favorite (modules/plugins)
  * @var   array       $items  Grouped list of favorites (site/administator)
  * @var   string      $task   Form id for this position using as clickaction too
+ * @var   string      $view   View for items output (tabbed/list)
  */
 ?>
 <!-- Start mod_jtfavorites.icon.items -->
-<?php if (!empty($items['site'])) : ?>
-	<?php if ($type == 'modules') : ?>
-		<h2 class="nav-header"><?php echo JFilterOutput::ampReplace($title . ' - ' . Text::_('JSITE')); ?></h2>
-	<?php endif; ?>
-	<?php if ($type == 'plugins') : ?>
-		<h2 class="nav-header"><?php echo JFilterOutput::ampReplace($title); ?></h2>
-	<?php endif; ?>
-	<ul class="j-links-group nav nav-list">
-		<?php foreach ($items['site'] as $item) : ?>
-			<?php $itemSublayout = array(
-				'item' => $item,
-				'type' => $type,
-				'task' => $task,
-			); ?>
-			<?php echo $this->sublayout('item', $itemSublayout) ?>
-		<?php endforeach; ?>
-	</ul>
-<?php endif; ?>
-<?php if (!empty($items['administrator'])) : ?>
-	<h2 class="nav-header"><?php echo JFilterOutput::ampReplace($title . ' - ' . Text::_('JADMINISTRATOR')); ?></h2>
-	<ul class="j-links-group nav nav-list">
-		<?php foreach ($items['administrator'] as $item) : ?>
-			<?php $itemSublayout = array(
-				'item' => $item,
-				'type' => $type,
-				'task' => $task,
-			); ?>
-			<?php echo $this->sublayout('item', $itemSublayout) ?>
-		<?php endforeach; ?>
-	</ul>
+<?php if (!empty($items['JSITE']) || !empty($items['JADMINISTRATOR'])) : ?>
+	<?php foreach ($items as $interface => $itemList) : ?>
+		<?php if ($type == 'modules') : ?>
+			<?php $newTitle = JFilterOutput::ampReplace($title) . ' - ' . Text::_($interface); ?>
+		<?php endif; ?>
+		<?php if ($type == 'plugins') : ?>
+			<?php $newTitle = JFilterOutput::ampReplace($title); ?>
+		<?php endif; ?>
+		<?php if ($view == 'tabbed') : ?>
+			<?php echo JHtml::_('bootstrap.addTab', 'iconListFavorites', $type . strtolower($interface), $newTitle); ?>
+		<?php else : ?>
+			<h2 class="nav-header"><?php echo $newTitle; ?></h2>
+		<?php endif; ?>
+		<ul class="j-links-group nav nav-list">
+			<?php foreach ($itemList as $item) : ?>
+				<?php $itemSublayout = array(
+					'item' => $item,
+					'type' => $type,
+					'task' => $task,
+				); ?>
+				<?php echo $this->sublayout('item', $itemSublayout) ?>
+			<?php endforeach; ?>
+		</ul>
+		<?php if ($view == 'tabbed') : ?>
+			<?php echo JHtml::_('bootstrap.endTab'); ?>
+		<?php endif; ?>
+	<?php endforeach; ?>
 <?php endif; ?>
 <!-- End mod_jtfavorites.icon.items -->

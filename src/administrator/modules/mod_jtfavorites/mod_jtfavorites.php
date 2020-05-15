@@ -56,6 +56,7 @@ $displayData = array(
 	'plugins'         => !empty($items['plugin']) ? $items['plugin'] : null,
 	'moduleclass_sfx' => $moduleclass_sfx,
 	'task'            => $position . 'JtFavForm',
+	'view'            => $params->get('show_items_tabbed', 'list'),
 );
 
 if (ModJtFavoritesHelper::$loadJs)

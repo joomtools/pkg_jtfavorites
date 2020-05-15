@@ -167,7 +167,7 @@ class ModJtFavoritesHelper
 			$item->title = Text::_($item->title);
 
 			// Distinction between page and administration extensions
-			$item->client = $item->client_id ? 'administrator' : 'site';
+			$item->client = $item->client_id ? 'JADMINISTRATOR' : 'JSITE';
 
 			// Set param to show trashed items
 			$item->access['show.trashed.items'] = $showTrashedItems;
