@@ -30,19 +30,19 @@ extract($displayData);
 switch (true)
 {
 	case !is_null($customs) :
-		$activeTab = 'customsactions';
+		$activeTab = 'iconcustomsactions';
 		break;
 
 	case !is_null($modules) && isset($modules['JADMINISTRATOR']) :
-		$activeTab = 'modulesjadministrator';
+		$activeTab = 'iconmodulesjadministrator';
 		break;
 
 	case !is_null($modules) && isset($modules['JSITE']) :
-		$activeTab = 'modulesjsite';
+		$activeTab = 'iconmodulesjsite';
 		break;
 
 	case !is_null($plugins) :
-		$activeTab = 'pluginsjsite';
+		$activeTab = 'iconpluginsjsite';
 		break;
 
 	default :

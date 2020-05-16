@@ -140,6 +140,91 @@ var JtFavorites = window.JtFavorites || {};
 			elm.setAttribute('onclick', onclick.replace('listItemTask', 'JtFavorites.listItemTask'));
 		});
 	};
+
+	/**
+	 * Add CSRF-Token on custom actions and return message on success
+	 */
+	JtFavorites.customActionsAddGetParams = function () {
+		var items = document.querySelectorAll('.mod_jtfavorites .customs .ext-link'),
+			token = window.Joomla.getOptions('csrf.token', ''),
+			processIconCss = document.createElement('style'),
+			processIcon = document.createElement('span'),
+			successIcon = document.createElement('span');
+
+		processIconCss.setAttribute("type", "text/css");
+		processIconCss.appendChild(document.createTextNode(".spinner {\n" +
+			"  display: inline-block;\n" +
+			"  height: 14px;\n" +
+			"  vertical-align: middle;\n" +
+			"  line-height: 18px;\n" +
+			"}\n" +
+			".spinner > span {\n" +
+			"  background-color: #333;\n" +
+			"  margin-left: 2px;\n" +
+			"  height: 100%;\n" +
+			"  width: 3px;\n" +
+			"  display: inline-block;\n" +
+			"  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;\n" +
+			"  animation: sk-stretchdelay 1.2s infinite ease-in-out;\n" +
+			"}\n" +
+			".spinner .rect2 {\n" +
+			"  -webkit-animation-delay: -1.1s;\n" +
+			"  animation-delay: -1.1s;\n" +
+			"}\n" +
+			".spinner .rect3 {\n" +
+			"  -webkit-animation-delay: -1.0s;\n" +
+			"  animation-delay: -1.0s;\n" +
+			"}\n" +
+			"@-webkit-keyframes sk-stretchdelay {\n" +
+			"  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  \n" +
+			"  20% { -webkit-transform: scaleY(1.0) }\n" +
+			"}\n" +
+			"@keyframes sk-stretchdelay {\n" +
+			"  0%, 40%, 100% { \n" +
+			"    transform: scaleY(0.4);\n" +
+			"    -webkit-transform: scaleY(0.4);\n" +
+			"  }  20% { \n" +
+			"    transform: scaleY(1.0);\n" +
+			"    -webkit-transform: scaleY(1.0);\n" +
+			"  }\n" +
+			"}"));
+		document.head.appendChild(processIconCss);
+
+		processIcon.setAttribute('class','spinner');
+		processIcon.setAttribute('aria-hidden','true');
+		processIcon.innerHTML = '<span class="rect1"></span><span class="rect2"></span><span class="rect3"></span>';
+
+		successIcon.setAttribute('class','icon-save');
+		successIcon.setAttribute('aria-hidden','true');
+
+		Array.prototype.forEach.call(items, function (elm) {
+			var href = elm.getAttribute('href');
+
+			elm.addEventListener('click', function(event){
+				event.preventDefault();
+
+				elm.parentNode.appendChild(processIcon);
+
+				window.Joomla.request({
+					url: href,
+					headers: {
+						'X-CSRF-Token': token
+					},
+					onError: function (xhr) {
+						console.error('ERROR: ', xhr);
+					},
+					onSuccess: function () {
+						elm.parentNode.removeChild(processIcon);
+						elm.parentNode.appendChild(successIcon);
+
+						setTimeout(function () {
+							elm.parentNode.removeChild(successIcon);
+						}, 4000);
+					}
+				});
+			});
+		});
+	};
 }(JtFavorites, document));
 
 function modJtFavReady(fn) {
@@ -151,4 +236,5 @@ function modJtFavReady(fn) {
 }
 
 modJtFavReady(JtFavorites.changeListItemTask);
+modJtFavReady(JtFavorites.customActionsAddGetParams);
 

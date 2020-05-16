@@ -61,7 +61,7 @@ else
 	<?php endif; ?>
 	<span class="btn btn-link ext-title">
 	<?php if ($item->access['core.edit'] && !empty($targetLink[$type])) : ?>
-		<a class="hasTooltip" href="<?php echo OutputFilter::ampReplace($targetLink[$type]); ?>"
+		<a class="hasTooltip ext-link" href="<?php echo OutputFilter::ampReplace($targetLink[$type]); ?>"
 		   title="<?php echo Text::_('JACTION_EDIT'); ?>"<?php echo $target; ?>>
 			<strong><?php echo $item->title; ?></strong>
 		</a>

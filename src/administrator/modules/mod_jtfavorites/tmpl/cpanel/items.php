@@ -32,9 +32,9 @@ extract($displayData);
 		<?php $newTitle = JFilterOutput::ampReplace($title); ?>
 	<?php endif; ?>
 	<?php if ($view == 'tabbed') : ?>
-		<?php echo JHtml::_('bootstrap.addTab', 'cpanelListFavorites', $type . strtolower($interface), $newTitle); ?>
+		<?php echo JHtml::_('bootstrap.addTab', 'cpanelListFavorites', 'cpanel' . $type . strtolower($interface), $newTitle); ?>
 	<?php endif; ?>
-	<table class="table table-hover table-bordered table-striped unstyled">
+	<table class="table table-hover table-bordered table-striped unstyled <?php echo $type; ?>">
 		<?php if ($view == 'list') : ?>
 			<caption class="text-left"><h4><?php echo $newTitle; ?></h4></caption>
 		<?php endif; ?>

@@ -29,19 +29,19 @@ extract($displayData);
 switch (true)
 {
 	case !is_null($customs) :
-		$activeTab = 'customsactions';
+		$activeTab = 'cpanelcustomsactions';
 		break;
 
 	case !is_null($modules) && isset($modules['JADMINISTRATOR']) :
-		$activeTab = 'modulesjadministrator';
+		$activeTab = 'cpanelmodulesjadministrator';
 		break;
 
 	case !is_null($modules) && isset($modules['JSITE']) :
-		$activeTab = 'modulesjsite';
+		$activeTab = 'cpanelmodulesjsite';
 		break;
 
 	case !is_null($plugins) :
-		$activeTab = 'pluginsjsite';
+		$activeTab = 'cpanelpluginsjsite';
 		break;
 
 	default :

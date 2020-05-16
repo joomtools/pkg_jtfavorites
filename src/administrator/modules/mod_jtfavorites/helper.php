@@ -193,25 +193,32 @@ class ModJtFavoritesHelper
 			return array();
 		}
 
-		// Custom actions
-		$customActions = (array) $params->get('custom_actions');
-
-		foreach ($customActions as $customAction)
+		if ($params->get('use_custom_actions'))
 		{
-			if (empty($customAction->custom_action_title) || empty($customAction->custom_action_link))
+			// Custom actions
+			$customActions = (array) $params->get('custom_actions');
+			$this->loadExtensionLanguage('mod_menu', 'module',1);
+
+			$json = htmlspecialchars(json_encode($customActions), ENT_NOQUOTES);
+//			$json = htmlspecialchars(htmlspecialchars_decode('{&quot;custom_actions0&quot;:{&quot;custom_action_title&quot;:&quot;clear Cache&quot;,&quot;custom_action_link&quot;:&quot;index.php?option=com_cache&amp;task=deleteAll&amp;boxchecked=1&quot;}}'), ENT_NOQUOTES);
+
+			foreach ($customActions as $customAction)
 			{
-				continue;
+				if (empty($customAction->custom_action_title) || empty($customAction->custom_action_link))
+				{
+					continue;
+				}
+
+				$customItem                      = new stdClass;
+				$customItem->type                = 'custom';
+				$customItem->client              = 'actions';
+				$customItem->title               = Text::_($customAction->custom_action_title);
+				$customItem->link                = $customAction->custom_action_link;
+				$customItem->isInternal          = Uri::isInternal($customAction->custom_action_link);
+				$customItem->access['core.edit'] = true;
+
+				$items[] = $customItem;
 			}
-
-			$customItem                      = new stdClass;
-			$customItem->type                = 'custom';
-			$customItem->client              = 'actions';
-			$customItem->title               = $customAction->custom_action_title;
-			$customItem->link                = $customAction->custom_action_link;
-			$customItem->isInternal          = Uri::isInternal($customAction->custom_action_link);
-			$customItem->access['core.edit'] = true;
-
-			$items[] = $customItem;
 		}
 
 		// Rearrange item list by type
@@ -235,6 +242,11 @@ class ModJtFavoritesHelper
 				if (!is_array($clientlist))
 				{
 					$items[$k][$client] = array($clientlist);
+				}
+
+				if ($k == 'custom')
+				{
+					continue;
 				}
 
 				$items[$k][$client] = ArrayHelper::sortObjects($items[$k][$client], 'title');
@@ -329,8 +341,10 @@ class ModJtFavoritesHelper
 		$path = $basePath . '/' . $extensionPath;
 
 		$lang = Factory::getLanguage();
-		$lang->load($extension, $path, null, true, false);
-		$lang->load($extension . '.sys', $path, null, true, false);
+		$lang->load($extension, $basePath);
+		$lang->load($extension . '.sys', $basePath);
+		$lang->load($extension, $path);
+		$lang->load($extension . '.sys', $path);
 	}
 
 	/**
