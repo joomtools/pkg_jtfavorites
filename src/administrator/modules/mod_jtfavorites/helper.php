@@ -15,6 +15,7 @@ use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Utilities\ArrayHelper;
 
 /**
@@ -187,9 +188,30 @@ class ModJtFavoritesHelper
 			$this->deleteDbEntry($toDeleteInDb);
 		}
 
-		if (count($items) < 1)
+		if (!count($items))
 		{
 			return array();
+		}
+
+		// Custom actions
+		$customActions = (array) $params->get('custom_actions');
+
+		foreach ($customActions as $customAction)
+		{
+			if (empty($customAction->custom_action_title) || empty($customAction->custom_action_link))
+			{
+				continue;
+			}
+
+			$customItem                      = new stdClass;
+			$customItem->type                = 'custom';
+			$customItem->client              = 'actions';
+			$customItem->title               = $customAction->custom_action_title;
+			$customItem->link                = $customAction->custom_action_link;
+			$customItem->isInternal          = Uri::isInternal($customAction->custom_action_link);
+			$customItem->access['core.edit'] = true;
+
+			$items[] = $customItem;
 		}
 
 		// Rearrange item list by type

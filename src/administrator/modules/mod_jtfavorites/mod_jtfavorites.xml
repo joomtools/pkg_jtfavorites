@@ -21,68 +21,100 @@
 		<fields name="params">
 			<fieldset name="basic">
 				<field
-					name="allow_change_state"
-					type="radio"
-					label="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_LABEL"
-					description="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_DESC"
-					class="btn-group btn-group-yesno"
-					default="1"
-					filter="integer"
-					>
+						name="allow_change_state"
+						type="radio"
+						label="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_LABEL"
+						description="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_DESC"
+						class="btn-group btn-group-yesno"
+						default="1"
+						filter="integer"
+				>
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
 				<field
-					name="link_to_item"
-					type="radio"
-					label="MOD_JTFAVORITES_FIELD_LINK_TO_ITEM_LABEL"
-					description="MOD_JTFAVORITES_FIELD_LINK_TO_ITEM_DESC"
-					class="btn-group btn-group-yesno"
-					default="1"
-					filter="integer"
-					>
+						name="link_to_item"
+						type="radio"
+						label="MOD_JTFAVORITES_FIELD_LINK_TO_ITEM_LABEL"
+						description="MOD_JTFAVORITES_FIELD_LINK_TO_ITEM_DESC"
+						class="btn-group btn-group-yesno"
+						default="1"
+						filter="integer"
+				>
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
 				<field
-					name="show_trashed_items"
-					type="radio"
-					label="MOD_JTFAVORITES_FIELD_SHOW_TRASHED_ITEMS_LABEL"
-					description="MOD_JTFAVORITES_FIELD_SHOW_TRASHED_ITEMS_DESC"
-					class="btn-group btn-group-yesno"
-					default="1"
-					filter="integer"
-					>
+						name="show_trashed_items"
+						type="radio"
+						label="MOD_JTFAVORITES_FIELD_SHOW_TRASHED_ITEMS_LABEL"
+						description="MOD_JTFAVORITES_FIELD_SHOW_TRASHED_ITEMS_DESC"
+						class="btn-group btn-group-yesno"
+						default="1"
+						filter="integer"
+				>
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
 				<field
-					name="show_items_tabbed"
-					type="radio"
-					label="MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_LABEL"
-					description="MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_DESC"
-					class="btn-group btn-group-yesno"
-					default="list"
-					>
+						name="show_items_tabbed"
+						type="radio"
+						label="MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_LABEL"
+						description="MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_DESC"
+						class="btn-group btn-group-yesno"
+						default="list"
+				>
 					<option value="tabbed">MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_OPTION_LABEL_AS_TAB</option>
 					<option value="list">MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_OPTION_LABEL_AS_LIST</option>
 				</field>
 			</fieldset>
-			<fieldset
-				name="advanced">
+			<fieldset name="custom_actions_tab" label="MOD_JTFAVORITES_FIELDSET_CUSTOM_ACTIONS_TAB">
+				<field name="subform_custom_actions_tab_note"
+				       type="note"
+				       class="alert alert-info"
+				       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_LABEL"
+				       description="MOD_JTFAVORITES_FIELDSET_SUBFORM_CUSTOM_ACTIONS_TAB"
+				/>
+				<field name="custom_actions"
+				       type="subform"
+				       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_LABEL"
+				       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_DESC"
+				       multiple="true"
+				       min="0"
+				>
+					<form>
+						<field name="custom_action_title"
+						       type="text"
+						       size="30"
+						       maxlength="30"
+						       class="input-xlarge"
+						       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_NAME_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_NAME_DESC"
+						/>
+						<field name="custom_action_link"
+						       type="text"
+						       maxlength="80"
+						       class="span10"
+						       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_DESC"
+						/>
+					</form>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
 				<field
-					name="layout"
-					type="modulelayout"
-					label="JFIELD_ALT_LAYOUT_LABEL"
-					description="JFIELD_ALT_MODULE_LAYOUT_DESC"
+						name="layout"
+						type="modulelayout"
+						label="JFIELD_ALT_LAYOUT_LABEL"
+						description="JFIELD_ALT_MODULE_LAYOUT_DESC"
 				/>
 
 				<field
-					name="moduleclass_sfx"
-					type="textarea"
-					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
-					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC"
-					rows="3"
+						name="moduleclass_sfx"
+						type="textarea"
+						label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+						description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC"
+						rows="3"
 				/>
 			</fieldset>
 		</fields>

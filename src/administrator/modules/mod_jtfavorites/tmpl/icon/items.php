@@ -29,7 +29,7 @@ extract($displayData);
 		<?php if ($type == 'modules') : ?>
 			<?php $newTitle = JFilterOutput::ampReplace($title) . ' - ' . Text::_($interface); ?>
 		<?php endif; ?>
-		<?php if ($type == 'plugins') : ?>
+		<?php if ($type == 'plugins' || $type == 'customs') : ?>
 			<?php $newTitle = JFilterOutput::ampReplace($title); ?>
 		<?php endif; ?>
 		<?php if ($view == 'tabbed') : ?>

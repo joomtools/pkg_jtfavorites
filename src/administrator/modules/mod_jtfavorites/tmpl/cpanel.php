@@ -18,6 +18,7 @@ extract($displayData);
 
 /**
  * @var   FileLayout  $this
+ * @var   array       $customs          List of favorites custom actions
  * @var   array       $modules          List of favorites modules
  * @var   array       $plugins          List of favorites plugins
  * @var   string      $task             Form id for this position using as clickaction too
@@ -25,7 +26,27 @@ extract($displayData);
  * @var   string      $moduleclass_sfx  Module class suffix
  */
 
-?>
+switch (true)
+{
+	case !is_null($customs) :
+		$activeTab = 'customsactions';
+		break;
+
+	case !is_null($modules) && isset($modules['JADMINISTRATOR']) :
+		$activeTab = 'modulesjadministrator';
+		break;
+
+	case !is_null($modules) && isset($modules['JSITE']) :
+		$activeTab = 'modulesjsite';
+		break;
+
+	case !is_null($plugins) :
+		$activeTab = 'pluginsjsite';
+		break;
+
+	default :
+		break;
+} ?>
 <!-- Start mod_jtfavorites.cpanel -->
 <div class="mod_jtfavorites cpanel<?php echo $moduleclass_sfx; ?>">
 	<form method="post" name="<?php echo $task; ?>" id="<?php echo $task; ?>"
@@ -33,7 +54,17 @@ extract($displayData);
 		  data-plugins-action="<?php echo Route::_('index.php?option=com_plugins&view=plugins'); ?>"
 	>
 		<?php if ($view == 'tabbed') : ?>
-			<?php echo JHtml::_('bootstrap.startTabSet', 'cpanelListFavorites', array('active' => 'modulesjadministrator')); ?>
+			<?php echo JHtml::_('bootstrap.startTabSet', 'cpanelListFavorites', array('active' => $activeTab)); ?>
+		<?php endif; ?>
+		<?php if (!is_null($customs)) : ?>
+			<?php $sublayout = array(
+				'title' => Text::_('MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE'),
+				'type'  => 'customs',
+				'items' => $customs,
+				'task'  => $task,
+				'view'  => $view,
+			); ?>
+			<?php echo $this->sublayout('items', $sublayout); ?>
 		<?php endif; ?>
 		<?php if (!is_null($modules)) : ?>
 			<?php $sublayout = array(

@@ -52,6 +52,7 @@ $layoutRenderer = ModJtFavoritesHelper::getLayoutRenderer($layout);
 
 $displayData = array(
 	'moduleTitle'     => $module->title,
+	'customs'         => !empty($items['custom']) ? $items['custom'] : null,
 	'modules'         => !empty($items['module']) ? $items['module'] : null,
 	'plugins'         => !empty($items['plugin']) ? $items['plugin'] : null,
 	'moduleclass_sfx' => $moduleclass_sfx,

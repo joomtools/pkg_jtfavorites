@@ -24,35 +24,33 @@ extract($displayData);
  */
 ?>
 <!-- Start mod_jtfavorites.cpanel.items -->
-<?php if (!empty($items['JSITE']) || !empty($items['JADMINISTRATOR'])) : ?>
-	<?php foreach ($items as $interface => $itemList) : ?>
-		<?php if ($type == 'modules') : ?>
-			<?php $newTitle = JFilterOutput::ampReplace($title) . ' (' . Text::_($interface) . ')'; ?>
+<?php foreach ($items as $interface => $itemList) : ?>
+	<?php if ($type == 'modules') : ?>
+		<?php $newTitle = JFilterOutput::ampReplace($title) . ' (' . Text::_($interface) . ')'; ?>
+	<?php endif; ?>
+	<?php if ($type == 'plugins' || $type == 'customs') : ?>
+		<?php $newTitle = JFilterOutput::ampReplace($title); ?>
+	<?php endif; ?>
+	<?php if ($view == 'tabbed') : ?>
+		<?php echo JHtml::_('bootstrap.addTab', 'cpanelListFavorites', $type . strtolower($interface), $newTitle); ?>
+	<?php endif; ?>
+	<table class="table table-hover table-bordered table-striped unstyled">
+		<?php if ($view == 'list') : ?>
+			<caption class="text-left"><h4><?php echo $newTitle; ?></h4></caption>
 		<?php endif; ?>
-		<?php if ($type == 'plugins') : ?>
-			<?php $newTitle = JFilterOutput::ampReplace($title); ?>
-		<?php endif; ?>
-		<?php if ($view == 'tabbed') : ?>
-			<?php echo JHtml::_('bootstrap.addTab', 'cpanelListFavorites', $type . strtolower($interface), $newTitle); ?>
-		<?php endif; ?>
-		<table class="table table-hover table-bordered table-striped unstyled">
-			<?php if ($view == 'list') : ?>
-				<caption class="text-left"><h4><?php echo $newTitle; ?></h4></caption>
-			<?php endif; ?>
-			<tbody>
-			<?php foreach ($itemList as $item) : ?>
-				<?php $itemSublayout = array(
-					'item' => $item,
-					'type' => $type,
-					'task' => $task,
-				); ?>
-				<?php echo $this->sublayout('item', $itemSublayout) ?>
-			<?php endforeach; ?>
-			</tbody>
-		</table>
-		<?php if ($view == 'tabbed') : ?>
-			<?php echo JHtml::_('bootstrap.endTab'); ?>
-		<?php endif; ?>
-	<?php endforeach; ?>
-<?php endif; ?>
+		<tbody>
+		<?php foreach ($itemList as $item) : ?>
+			<?php $itemSublayout = array(
+				'item' => $item,
+				'type' => $type,
+				'task' => $task,
+			); ?>
+			<?php echo $this->sublayout('item', $itemSublayout) ?>
+		<?php endforeach; ?>
+		</tbody>
+	</table>
+	<?php if ($view == 'tabbed') : ?>
+		<?php echo JHtml::_('bootstrap.endTab'); ?>
+	<?php endif; ?>
+<?php endforeach; ?>
 <!-- End mod_jtfavorites.cpanel.items -->
