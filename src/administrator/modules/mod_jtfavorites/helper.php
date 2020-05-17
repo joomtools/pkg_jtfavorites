@@ -187,19 +187,11 @@ class ModJtFavoritesHelper
 			$this->deleteDbEntry($toDeleteInDb);
 		}
 
-		if (!count($items))
-		{
-			return array();
-		}
-
 		if ($params->get('use_custom_actions'))
 		{
 			// Custom actions
 			$customActions = (array) $params->get('custom_actions');
 			$this->loadExtensionLanguage('mod_menu', 'module',1);
-
-			$json = htmlspecialchars(json_encode($customActions), ENT_NOQUOTES);
-//			$json = htmlspecialchars(htmlspecialchars_decode('{&quot;custom_actions0&quot;:{&quot;custom_action_title&quot;:&quot;clear Cache&quot;,&quot;custom_action_link&quot;:&quot;index.php?option=com_cache&amp;task=deleteAll&amp;boxchecked=1&quot;}}'), ENT_NOQUOTES);
 
 			foreach ($customActions as $customAction)
 			{
@@ -218,6 +210,11 @@ class ModJtFavoritesHelper
 
 				$items[] = $customItem;
 			}
+		}
+
+		if (!count($items))
+		{
+			return array();
 		}
 
 		// Rearrange item list by type
