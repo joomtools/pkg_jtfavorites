@@ -200,6 +200,8 @@ class ModJtFavoritesHelper
 					continue;
 				}
 
+				$loadJs['custom'] = true;
+
 				$customItem                      = new stdClass;
 				$customItem->type                = 'custom';
 				$customItem->client              = 'actions';
@@ -252,7 +254,7 @@ class ModJtFavoritesHelper
 		$loadJs = array_values($loadJs);
 		$loadJs = ArrayHelper::arrayUnique($loadJs);
 
-		self::$loadJs = (count($loadJs) > 1 || $loadJs[0] === true);
+		self::$loadJs = (count($loadJs) && $loadJs[0] === true);
 
 		return $items;
 	}
