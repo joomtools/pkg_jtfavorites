@@ -52,6 +52,7 @@
 						class="btn-group btn-group-yesno"
 						default="1"
 						filter="integer"
+						showon="allow_change_state:1[OR]link_to_item:1"
 				>
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
