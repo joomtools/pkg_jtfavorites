@@ -111,10 +111,9 @@ class ModJtFavoritesHelper
 	{
 		$loadJs           = array();
 		$toDeleteInDb     = array();
-		$isRoot           = Factory::getUser()->authorise('root.1');
 		$changeState      = $params->get('allow_change_state');
 		$linkItem         = $params->get('link_to_item');
-		$showTrashedItems = $isRoot ?: filter_var($params->get('show_trashed_items'), FILTER_VALIDATE_BOOLEAN);
+		$showTrashedItems = $params->get('show_trashed_items');
 
 		// Create item list for layout output
 		foreach ($items as $k => &$item)
@@ -124,7 +123,7 @@ class ModJtFavoritesHelper
 			// Validate authorization
 			$item->access = $this->validateAuthorizations($extension, $item->assets_name);
 
-			if ($item->access !== false && !$isRoot)
+			if ($item->access !== false)
 			{
 				if (!$changeState)
 				{

@@ -51,7 +51,7 @@ else
 		<span class="btn-group click-action">
 			<?php echo HTMLHelper::_('jgrid.published', (int) $item->state, $row, $type . '.', $item->access['core.edit.state'], $clickAction); ?>
 			<?php // Create dropdown items and render the dropdown list. ?>
-			<?php if ($item->access['show.trashed.items'] && $type == 'modules') : ?>
+			<?php if ($item->access['core.edit.state'] && $type == 'modules') : ?>
 				<?php HTMLHelper::_('actionsdropdown.' . ((int) $item->state === -2 ? 'un' : '') . 'trash', $clickAction . $row, $type); ?>
 				<?php echo HTMLHelper::_('actionsdropdown.render', $item->title); ?>
 			<?php endif; ?>
