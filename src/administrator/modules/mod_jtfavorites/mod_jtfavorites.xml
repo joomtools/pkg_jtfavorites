@@ -73,8 +73,8 @@
 				<field
 						name="use_custom_actions"
 						type="radio"
-						label="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_LABEL"
-						description="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_DESC"
+						label="MOD_JTFAVORITES_FIELD_USE_ACTIONS_LABEL"
+						description="MOD_JTFAVORITES_FIELD_USE_ACTIONS_DESC"
 						class="btn-group btn-group-yesno"
 						default="0"
 						filter="integer"
@@ -87,15 +87,25 @@
 				       class="alert alert-info"
 				       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_LABEL"
 				       description="MOD_JTFAVORITES_FIELDSET_SUBFORM_CUSTOM_ACTIONS_TAB"
-				       showon="use_custom_actions:1"
 				/>
+				<field
+						name="use_custom_actions"
+						type="radio"
+						label="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_LABEL"
+						description="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_DESC"
+						class="btn-group btn-group-yesno"
+						default="0"
+						filter="integer"
+				>
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
 				<field name="custom_actions"
 				       type="subform"
-				       default='{"custom_actions0":{"custom_action_title":"clear Cache","custom_action_link":"index.php?option=com_cache&amp;task=deleteAll&amp;boxchecked=999"},"custom_actions1":{"custom_action_title":"Globales Checkin","custom_action_link":"index.php?option=com_checkin&amp;task=checkin&amp;boxchecked=999&amp;cid[]=j3dev_banners&amp;cid[]=j3dev_banner_clients&amp;cid[]=j3dev_categories&amp;cid[]=j3dev_contact_details&amp;cid[]=j3dev_content&amp;cid[]=j3dev_extensions&amp;cid[]=j3dev_fields&amp;cid[]=j3dev_fields_groups&amp;cid[]=j3dev_finder_filters&amp;cid[]=j3dev_menu&amp;cid[]=j3dev_modules&amp;cid[]=j3dev_tags&amp;cid[]=j3dev_ucm_content&amp;cid[]=j3dev_wf_profiles"}}'
 				       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_LABEL"
 				       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_DESC"
 				       multiple="true"
-				       min="0"
+				       min="1"
 				       showon="use_custom_actions:1"
 				>
 					<form>
