@@ -54,7 +54,7 @@ switch (true)
 		  data-plugins-action="<?php echo Route::_('index.php?option=com_plugins&view=plugins'); ?>"
 	>
 		<?php if ($view == 'tabbed') : ?>
-			<?php echo JHtml::_('bootstrap.startTabSet', 'cpanelListFavorites', array('active' => $activeTab)); ?>
+			<?php echo HTMLHelper::_('bootstrap.startTabSet', 'cpanelListFavorites', array('active' => $activeTab)); ?>
 		<?php endif; ?>
 		<?php if (!is_null($customs)) : ?>
 			<?php $sublayout = array(
@@ -87,7 +87,7 @@ switch (true)
 			<?php echo $this->sublayout('items', $sublayout); ?>
 		<?php endif; ?>
 		<?php if ($view == 'tabbed') : ?>
-			<?php echo JHtml::_('bootstrap.endTabSet'); ?>
+			<?php echo HTMLHelper::_('bootstrap.endTabSet'); ?>
 		<?php endif; ?>
 		<input type="hidden" name="task" value=""/>
 		<input type="hidden" name="boxchecked" value="0"/>

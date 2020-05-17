@@ -52,8 +52,8 @@ switch (true)
 <div class="j-links-separator"></div>
 <div class="mod_jtfavorites icon<?php echo $moduleclass_sfx; ?>">
 	<form method="post" name="<?php echo $task; ?>" id="<?php echo $task; ?>"
-		  data-modules-action="<?php echo Route::_('index.php?option=com_modules'); ?>"
-		  data-plugins-action="<?php echo Route::_('index.php?option=com_plugins&view=plugins'); ?>"
+		  data-modules-action="<?php echo 'index.php?option=com_modules'; ?>"
+		  data-plugins-action="<?php echo 'index.php?option=com_plugins&view=plugins'; ?>"
 	>
 		<h2 class="quick-icons">
 			<span class="module-title nav-header"><?php echo $moduleTitle; ?></span>
@@ -62,7 +62,7 @@ switch (true)
 			<?php $parentLayout = new FileLayout('joomla.links.groupsopen'); ?>
 			<?php echo $parentLayout->render(''); ?>
 			<?php if ($view == 'tabbed') : ?>
-				<?php echo JHtml::_('bootstrap.startTabSet', 'iconListFavorites', array('active' => $activeTab)); ?>
+				<?php echo HTMLHelper::_('bootstrap.startTabSet', 'iconListFavorites', array('active' => $activeTab)); ?>
 			<?php endif; ?>
 			<?php if (!is_null($customs)) : ?>
 				<?php $sublayout = array(
@@ -95,7 +95,7 @@ switch (true)
 				<?php echo $this->sublayout('items', $sublayout); ?>
 			<?php endif; ?>
 			<?php if ($view == 'tabbed') : ?>
-				<?php echo JHtml::_('bootstrap.endTabSet'); ?>
+				<?php echo HTMLHelper::_('bootstrap.endTabSet'); ?>
 			<?php endif; ?>
 			<?php $parentLayout = new FileLayout('joomla.links.groupsclose'); ?>
 			<?php echo $parentLayout->render(''); ?>
