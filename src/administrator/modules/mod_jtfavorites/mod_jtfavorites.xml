@@ -69,6 +69,31 @@
 					<option value="list">MOD_JTFAVORITES_FIELD_SHOW_ITEMS_TABBED_OPTION_LABEL_AS_LIST</option>
 				</field>
 			</fieldset>
+			<fieldset name="sort_groups_tab" label="MOD_JTFAVORITES_FIELDSET_SORT_GROUPS_TAB">
+				<field name="subform_sort_groups_tab_note"
+				       type="note"
+				       class="alert alert-info"
+				       label="MOD_JTFAVORITES_FIELD_SORT_GROUPS_LABEL"
+				       description="MOD_JTFAVORITES_FIELD_SORT_GROUPS_NOTE_DESC"
+				/>
+				<field name="sort_groups"
+				       type="subform"
+				       default='{"sort_groups0":{"group_title":"MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE"},"sort_groups1":{"group_title":"MOD_JTFAVORITES_VIEW_CORE_TITLE"},"sort_groups2":{"group_title":"MOD_JTFAVORITES_VIEW_MODULES_TITLE_JSITE"},"sort_groups3":{"group_title":"MOD_JTFAVORITES_VIEW_MODULES_TITLE_JADMINISTRATOR"},"sort_groups4":{"group_title":"MOD_JTFAVORITES_VIEW_PLUGINS_TITLE"}}'
+				       label="MOD_JTFAVORITES_FIELD_SORT_GROUPS_LABEL"
+				       description="MOD_JTFAVORITES_FIELD_SORT_GROUPS_DESC"
+				       multiple="true"
+				       buttons="move"
+				>
+					<form>
+						<field name="group_title"
+						       type="coretitle"
+						       label="MOD_JTFAVORITES_FIELD_GROUP_TITLE_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_GROUP_TITLE_DESC"
+						       default=""
+						/>
+					</form>
+				</field>
+			</fieldset>
 			<fieldset name="custom_actions_tab" label="MOD_JTFAVORITES_FIELDSET_CUSTOM_ACTIONS_TAB">
 				<field name="subform_custom_actions_tab_note"
 				       type="note"
@@ -157,7 +182,6 @@
 						/>
 						<field name="action_title"
 						       type="coretitle"
-						       readonly="true"
 						       class="input-xlarge"
 						       label="MOD_JTFAVORITES_FIELD_CORE_ACTION_NAME_LABEL"
 						       description="MOD_JTFAVORITES_FIELD_CORE_ACTION_NAME_DESC"

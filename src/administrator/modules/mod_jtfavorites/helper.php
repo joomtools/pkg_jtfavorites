@@ -46,12 +46,26 @@ class ModJtFavoritesHelper
 	public static $loadJs = true;
 
 	/**
-	 * List of tab titles
+	 * Default order of groups
 	 * 
 	 * @var     array
 	 * @since   1.1.0
 	 */
-	private $tabTitles = array(
+	private $defaultGroupsOrder = array(
+		'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE',
+		'MOD_JTFAVORITES_VIEW_CORE_TITLE',
+		'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JSITE',
+		'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JADMINISTRATOR',
+		'MOD_JTFAVORITES_VIEW_PLUGINS_TITLE',
+	);
+
+	/**
+	 * List of groups titles
+	 *
+	 * @var     array
+	 * @since   1.1.0
+	 */
+	private $groupsTitles = array(
 		"custom" => 'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE',
 		"core" => 'MOD_JTFAVORITES_VIEW_CORE_TITLE',
 		"plugin" => 'MOD_JTFAVORITES_VIEW_PLUGINS_TITLE',
@@ -216,11 +230,11 @@ class ModJtFavoritesHelper
 			$item->title = Text::_($item->title);
 
 			// Defins tab title
-			$item->tab = $this->tabTitles[$item->type];
+			$item->tab = $this->groupsTitles[$item->type];
 
 			if ($item->type == 'module')
 			{
-				$item->tab = $this->tabTitles[$item->type][$item->client_id];
+				$item->tab = $this->groupsTitles[$item->type][$item->client_id];
 			}
 
 			// Set param to show trashed items
@@ -277,15 +291,19 @@ class ModJtFavoritesHelper
 		// Rearrange item list by type
 		$items = ArrayHelper::pivot($items, 'tab');
 
-		$order       = array(
-			'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE',
-			'MOD_JTFAVORITES_VIEW_CORE_TITLE',
-			'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JSITE',
-			'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JADMINISTRATOR',
-			'MOD_JTFAVORITES_VIEW_PLUGINS_TITLE',
-		);
+		if ($groupsOrder = $params->get('sort_groups', null))
+		{
+			$groupsOrder = ArrayHelper::fromObject($groupsOrder);
+			$groupsOrder = ArrayHelper::pivot($groupsOrder, 'group_title');
+			$groupsOrder = array_keys($groupsOrder);
+		}
 
-		$items = $this->sortItems($order, $items);
+		if (empty($groupsOrder))
+		{
+			$groupsOrder = $this->defaultGroupsOrder;
+		}
+
+		$items = $this->sortItems($groupsOrder, $items);
 
 		// Rearrange type list by client
 		foreach ($items as $tab => $itemlist)
@@ -514,7 +532,7 @@ class ModJtFavoritesHelper
 
 			$customItem                      = new stdClass;
 			$customItem->type                = $type;
-			$customItem->tab                 = $this->tabTitles[$type];;
+			$customItem->tab                 = $this->groupsTitles[$type];;
 			$customItem->title               = Text::_($customAction->action_title);
 			$customItem->link                = $type == 'core' ? $this->getCoreLink($customAction) : $filter->clean($customAction->action_link);
 			$customItem->target              = !empty($customAction->action_link_target) ? $customAction->action_link_target : null;
