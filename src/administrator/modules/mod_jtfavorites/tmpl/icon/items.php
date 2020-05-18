@@ -7,8 +7,10 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
+use Joomla\Filter\OutputFilter;
 
 defined('_JEXEC') or die;
 
@@ -26,13 +28,13 @@ extract($displayData);
 <!-- Start mod_jtfavorites.icon.items -->
 <?php foreach ($items as $interface => $itemList) : ?>
 	<?php if ($type == 'modules') : ?>
-		<?php $newTitle = JFilterOutput::ampReplace($title) . ' - ' . Text::_($interface); ?>
+		<?php $newTitle = OutputFilter::ampReplace($title) . ' - ' . Text::_($interface); ?>
 	<?php endif; ?>
 	<?php if ($type == 'plugins' || $type == 'customs') : ?>
-		<?php $newTitle = JFilterOutput::ampReplace($title); ?>
+		<?php $newTitle = OutputFilter::ampReplace($title); ?>
 	<?php endif; ?>
 	<?php if ($view == 'tabbed') : ?>
-		<?php echo JHtml::_('bootstrap.addTab', 'iconListFavorites', 'icon' . $type . strtolower($interface), $newTitle); ?>
+		<?php echo HtmlHelper::_('bootstrap.addTab', 'iconListFavorites', 'icon' . $type . strtolower($interface), $newTitle); ?>
 	<?php else : ?>
 		<h2 class="nav-header"><?php echo $newTitle; ?></h2>
 	<?php endif; ?>

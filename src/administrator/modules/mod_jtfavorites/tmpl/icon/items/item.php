@@ -12,7 +12,6 @@ use Joomla\CMS\Filter\OutputFilter;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
-use Joomla\CMS\Router\Route;
 
 defined('_JEXEC') or die;
 
@@ -27,9 +26,9 @@ extract($displayData);
 
 $row =& ModJtFavoritesHelper::$row;
 
-if ($type == 'customs')
+if (in_array($type, array('customs', 'core')))
 {
-	$targetLink = array('customs' => $item->link);
+	$targetLink = array($type => $item->link);
 	$target = !$item->isInternal ? ' target="_blank"' : '';
 }
 else
@@ -46,7 +45,7 @@ else
 } ?>
 <!-- Start mod_jtfavorites.icon.items.item -->
 <li class="row<?php echo $row % 2; ?>">
-	<?php if ($type != 'customs') : ?>
+	<?php if (!in_array($type, array('customs', 'core'))) : ?>
 		<span class="btn-group click-action">
 		<?php echo HTMLHelper::_('jgrid.published', (int) $item->state, $row, $type . '.', $item->access['core.edit.state'], $clickAction); ?>
 		<?php // Create dropdown items and render the dropdown list. ?>

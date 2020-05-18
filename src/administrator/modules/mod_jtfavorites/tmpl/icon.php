@@ -19,6 +19,7 @@ extract($displayData);
 /**
  * @var   FileLayout  $this
  * @var   array       $customs          List of favorites custom actions
+ * @var   array       $core             List of core actions
  * @var   array       $modules          List of favorites modules
  * @var   array       $plugins          List of favorites plugins
  * @var   string      $task             Form id for this position using as clickaction too
@@ -31,6 +32,10 @@ switch (true)
 {
 	case !is_null($customs) :
 		$activeTab = 'iconcustomsactions';
+		break;
+
+	case !is_null($core) :
+		$activeTab = 'iconcoreactions';
 		break;
 
 	case !is_null($modules) && isset($modules['JADMINISTRATOR']) :
@@ -69,6 +74,16 @@ switch (true)
 					'title' => Text::_('MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE'),
 					'type'  => 'customs',
 					'items' => $customs,
+					'task'  => $task,
+					'view'  => $view,
+				); ?>
+				<?php echo $this->sublayout('items', $sublayout); ?>
+			<?php endif; ?>
+			<?php if (!is_null($core)) : ?>
+				<?php $sublayout = array(
+					'title' => Text::_('MOD_JTFAVORITES_VIEW_CORE_TITLE'),
+					'type'  => 'core',
+					'items' => $core,
 					'task'  => $task,
 					'view'  => $view,
 				); ?>

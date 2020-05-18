@@ -11,6 +11,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\Filter\InputFilter;
 use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
@@ -27,6 +28,7 @@ class ModJtFavoritesHelper
 {
 	/**
 	 * Define integer for the state 'trash'
+	 * 
 	 * @var     int
 	 * @since   1.0.0
 	 */
@@ -43,6 +45,38 @@ class ModJtFavoritesHelper
 	 * @since   1.0.0
 	 */
 	public static $loadJs = true;
+
+	/**
+	 * List of links for core actions
+	 * 
+	 * @var     array
+	 * @since   1.1.0
+	 */
+	private $coreLinks = array(
+		"com_cache" => 'index.php?option=com_cache&task=deleteAll&boxchecked=999',
+		"com_checkin" => 'index.php?option=com_checkin&task=checkin&boxchecked=999',
+	);
+
+	/**
+	 * List of tables to use on global checkin
+	 * @var     array
+	 * @since   1.1.0
+	 */
+	private $globalChekinTables = array(
+		"#__banners",
+		"#__banner_clients",
+		"#__categories",
+		"#__contact_details",
+		"#__content",
+		"#__extensions",
+		"#__fields",
+		"#__fields_groups",
+		"#__finder_filters",
+		"#__menu",
+		"#__modules",
+		"#__tags",
+		"#__ucm_content",
+	);
 
 	/**
 	 * Get a list of articles.
@@ -116,7 +150,7 @@ class ModJtFavoritesHelper
 		$showTrashedItems = $params->get('show_trashed_items');
 
 		// Create item list for layout output
-		foreach ($items as $k => &$item)
+		foreach ($items as $i => &$item)
 		{
 			list ($extension, $item->type, $item->extension_id) = explode('.', $item->assets_name);
 
@@ -152,7 +186,7 @@ class ModJtFavoritesHelper
 				|| ($item->access['core.edit.state'] === false && $item->access['core.edit'] === false)
 				|| ($item->state == self::TRASH && $showTrashedItems === false))
 			{
-				unset($items[$k], $loadJs[$item->extension_id]);
+				unset($items[$i], $loadJs[$item->extension_id]);
 
 				continue;
 			}
@@ -191,26 +225,27 @@ class ModJtFavoritesHelper
 		{
 			// Custom actions
 			$customActions = (array) $params->get('custom_actions');
+			$customActions = $this->getCustomAndCoreActions($customActions, 'custom');
+
+			if (!empty($customActions))
+			{
+				$items          = array_merge($items, $customActions);
+				$loadJs['custom'] = true;
+			}
+		}
+
+		if ($params->get('use_core_actions'))
+		{
 			$this->loadExtensionLanguage('mod_menu', 'module',1);
 
-			foreach ($customActions as $customAction)
+			// Core actions
+			$coreActions = (array) $params->get('core_actions');
+			$coreActions = $this->getCustomAndCoreActions($coreActions, 'core');
+
+			if (!empty($coreActions))
 			{
-				if (empty($customAction->custom_action_title) || empty($customAction->custom_action_link))
-				{
-					continue;
-				}
-
-				$loadJs['custom'] = true;
-
-				$customItem                      = new stdClass;
-				$customItem->type                = 'custom';
-				$customItem->client              = 'actions';
-				$customItem->title               = Text::_($customAction->custom_action_title);
-				$customItem->link                = $customAction->custom_action_link;
-				$customItem->isInternal          = Uri::isInternal($customAction->custom_action_link);
-				$customItem->access['core.edit'] = true;
-
-				$items[] = $customItem;
+				$items          = array_merge($items, $coreActions);
+				$loadJs['core'] = true;
 			}
 		}
 
@@ -223,31 +258,31 @@ class ModJtFavoritesHelper
 		$items = ArrayHelper::pivot($items, 'type');
 
 		// Rearrange type list by client
-		foreach ($items as $k => $item)
+		foreach ($items as $type => $item)
 		{
 
 			// Equalization of the entries as array list
 			if (!is_array($item))
 			{
-				$items[$k] = array($item);
+				$items[$type] = array($item);
 			}
 
-			$items[$k] = ArrayHelper::pivot($items[$k], 'client');
+			$items[$type] = ArrayHelper::pivot($items[$type], 'client');
 
-			foreach ($items[$k] as $client => $clientlist)
+			foreach ($items[$type] as $client => $clientlist)
 			{
 				// Equalization of the entries as array list
 				if (!is_array($clientlist))
 				{
-					$items[$k][$client] = array($clientlist);
+					$items[$type][$client] = array($clientlist);
 				}
 
-				if ($k == 'custom')
+				if (in_array($type, array('custom', 'core')))
 				{
 					continue;
 				}
 
-				$items[$k][$client] = ArrayHelper::sortObjects($items[$k][$client], 'title');
+				$items[$type][$client] = ArrayHelper::sortObjects($items[$type][$client], 'title');
 			}
 		}
 
@@ -439,5 +474,69 @@ class ModJtFavoritesHelper
 
 		return $db->loadResult();
 
+	}
+
+	/**
+	 * Get prepared items for output
+	 *
+	 * @param   array   $customActions
+	 * @param   string  $type
+	 *
+	 * @return   array
+	 * @since    1.0.0
+	 */
+	private function getCustomAndCoreActions($customActions, $type)
+	{
+		foreach ($customActions as $customAction)
+		{
+			if (($type == 'custom' && (empty($customAction->action_title) || empty($customAction->action_link)))
+				|| ($type == 'core' && (empty($customAction->use_core_action) || empty($customAction->action_title) || empty($customAction->action_option))))
+			{
+				continue;
+			}
+
+			$customItem                      = new stdClass;
+			$customItem->type                = $type;
+			$customItem->client              = 'actions';
+			$customItem->title               = Text::_($customAction->action_title);
+			$customItem->link                = $type == 'core' ? $this->getCoreLink($customAction) : InputFilter::clean($customAction->action_link);
+			$customItem->isInternal          = Uri::isInternal($customItem->link);
+			$customItem->access['core.edit'] = true;
+
+			$items[] = $customItem;
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Get core link for action
+	 *
+	 * @param   object  $item
+	 *
+	 * @return   string  Url for core action
+	 * @since    1.1.0
+	 */
+	private function getCoreLink($item)
+	{
+		$link = $this->coreLinks[$item->action_option];
+
+		if ($item->action_option == 'com_checkin')
+		{
+			$tablePrefix  = Factory::getConfig()->get('dbprefix');
+			$options      = $this->globalChekinTables;
+			$customTables = explode(',', $item->action_checkin_tables);
+			$customTables = array_filter($customTables);;
+
+			if (!empty($customTables))
+			{
+				$options = array_merge($options, $customTables);
+			}
+
+			$link .= '&cid[]=' . implode('&cid[]=', $options);
+			$link = str_replace('#__', $tablePrefix, $link);
+		}
+
+		return $link;
 	}
 }

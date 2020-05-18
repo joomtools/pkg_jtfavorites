@@ -70,22 +70,10 @@
 				</field>
 			</fieldset>
 			<fieldset name="custom_actions_tab" label="MOD_JTFAVORITES_FIELDSET_CUSTOM_ACTIONS_TAB">
-				<field
-						name="use_custom_actions"
-						type="radio"
-						label="MOD_JTFAVORITES_FIELD_USE_ACTIONS_LABEL"
-						description="MOD_JTFAVORITES_FIELD_USE_ACTIONS_DESC"
-						class="btn-group btn-group-yesno"
-						default="0"
-						filter="integer"
-				>
-					<option value="1">JYES</option>
-					<option value="0">JNO</option>
-				</field>
 				<field name="subform_custom_actions_tab_note"
 				       type="note"
 				       class="alert alert-info"
-				       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_LABEL"
+				       label="MOD_JTFAVORITES_FIELD_ACTIONS_LABEL"
 				       description="MOD_JTFAVORITES_FIELDSET_SUBFORM_CUSTOM_ACTIONS_TAB"
 				/>
 				<field
@@ -102,26 +90,89 @@
 				</field>
 				<field name="custom_actions"
 				       type="subform"
-				       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_LABEL"
+				       label="MOD_JTFAVORITES_FIELD_ACTIONS_LABEL"
 				       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTIONS_DESC"
 				       multiple="true"
 				       min="1"
 				       showon="use_custom_actions:1"
 				>
 					<form>
-						<field name="custom_action_title"
+						<field name="action_title"
 						       type="text"
 						       maxlength="60"
 						       class="input-xlarge"
 						       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_NAME_LABEL"
 						       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_NAME_DESC"
 						/>
-						<field name="custom_action_link"
+						<field name="action_link"
 						       type="text"
 						       class="span10"
 						       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_LABEL"
 						       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_DESC"
 						/>
+					</form>
+				</field>
+			</fieldset>
+			<fieldset name="core_actions_tab" label="MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_TAB"
+			          addfieldpath="/administrator/modules/mod_jtfavorites/fields">
+				<field name="subform_core_actions_tab_note"
+				       type="note"
+				       class="alert alert-info"
+				       label="MOD_JTFAVORITES_FIELD_ACTIONS_LABEL"
+				       description="MOD_JTFAVORITES_FIELDSET_SUBFORM_CORE_ACTIONS_TAB"
+				/>
+				<field
+						name="use_core_actions"
+						type="radio"
+						label="MOD_JTFAVORITES_FIELD_USE_ACTIONS_LABEL"
+						description="MOD_JTFAVORITES_FIELD_USE_ACTIONS_DESC"
+						class="btn-group btn-group-yesno"
+						default="0"
+						filter="integer"
+				>
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="core_actions"
+				       type="subform"
+				       default='{"core_actions0":{"action_title":"MOD_MENU_CLEAR_CACHE","use_core_action":"1","action_option":"com_cache"},"core_actions1":{"action_title":"MOD_MENU_GLOBAL_CHECKIN","use_core_action":"1","action_option":"com_checkin"}}'
+				       label="MOD_JTFAVORITES_FIELD_ACTIONS_LABEL"
+				       description="MOD_JTFAVORITES_FIELD_CORE_ACTIONS_DESC"
+				       multiple="true"
+				       buttons="move"
+				       showon="use_core_actions:1"
+				>
+					<form>
+						<field name="action_option"
+						       type="hidden"
+						       default=""
+						/>
+						<field name="action_title"
+						       type="coretitle"
+						       readonly="true"
+						       class="input-xlarge"
+						       label="MOD_JTFAVORITES_FIELD_CORE_ACTION_NAME_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_CORE_ACTION_NAME_DESC"
+						       default=""
+						/>
+						<field name="action_checkin_tables"
+						       type="text"
+						       class="span10"
+						       label="MOD_JTFAVORITES_FIELD_ACTION_CHECKIN_TABLES_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_ACTION_CHECKIN_TABLES_DESC"
+						       showon="action_option:com_checkin"
+						/>
+						<field name="use_core_action"
+						       type="radio"
+						       label="MOD_JTFAVORITES_FIELD_USE_ACTIONS_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_USE_ACTIONS_DESC"
+						       class="btn-group btn-group-yesno"
+						       default="1"
+						       filter="integer"
+						>
+							<option value="1">JYES</option>
+							<option value="0">JNO</option>
+						</field>
 					</form>
 				</field>
 			</fieldset>
