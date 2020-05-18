@@ -353,8 +353,6 @@ class ModJtFavoritesHelper
 	 */
 	private function loadExtensionLanguage($extension, $type, $client_id = 0)
 	{
-		$basePath = JPATH_SITE;
-
 		$extensionPath = $type . 's/' . $extension;
 
 		if ($type == 'plugin')
@@ -364,6 +362,8 @@ class ModJtFavoritesHelper
 			$extensionPath = $type . 's/' . $folder . '/' . $element;
 		}
 
+		$basePath = JPATH_SITE;
+
 		if ($client_id)
 		{
 			$basePath = JPATH_ADMINISTRATOR;
@@ -372,8 +372,10 @@ class ModJtFavoritesHelper
 		$path = $basePath . '/' . $extensionPath;
 
 		$lang = Factory::getLanguage();
-		$lang->load($extension, $basePath);
-		$lang->load($extension . '.sys', $basePath);
+		$lang->load($extension, JPATH_SITE);
+		$lang->load($extension . '.sys', JPATH_SITE);
+		$lang->load($extension, JPATH_ADMINISTRATOR);
+		$lang->load($extension . '.sys', JPATH_ADMINISTRATOR);
 		$lang->load($extension, $path);
 		$lang->load($extension . '.sys', $path);
 	}
