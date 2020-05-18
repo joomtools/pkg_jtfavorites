@@ -260,7 +260,6 @@ class ModJtFavoritesHelper
 		// Rearrange type list by client
 		foreach ($items as $type => $item)
 		{
-
 			// Equalization of the entries as array list
 			if (!is_array($item))
 			{
@@ -487,6 +486,7 @@ class ModJtFavoritesHelper
 	 */
 	private function getCustomAndCoreActions($customActions, $type)
 	{
+		$filter = new InputFilter;
 		foreach ($customActions as $customAction)
 		{
 			if (($type == 'custom' && (empty($customAction->action_title) || empty($customAction->action_link)))
@@ -499,7 +499,7 @@ class ModJtFavoritesHelper
 			$customItem->type                = $type;
 			$customItem->client              = 'actions';
 			$customItem->title               = Text::_($customAction->action_title);
-			$customItem->link                = $type == 'core' ? $this->getCoreLink($customAction) : InputFilter::clean($customAction->action_link);
+			$customItem->link                = $type == 'core' ? $this->getCoreLink($customAction) : $filter->clean($customAction->action_link);
 			$customItem->isInternal          = Uri::isInternal($customItem->link);
 			$customItem->access['core.edit'] = true;
 
