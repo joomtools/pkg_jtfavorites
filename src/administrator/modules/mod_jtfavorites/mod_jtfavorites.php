@@ -52,13 +52,10 @@ $layoutRenderer = ModJtFavoritesHelper::getLayoutRenderer($layout);
 
 $displayData = array(
 	'moduleTitle'     => $module->title,
-	'customs'         => !empty($items['custom']) ? $items['custom'] : null,
-	'core'            => !empty($items['core']) ? $items['core'] : null,
-	'modules'         => !empty($items['module']) ? $items['module'] : null,
-	'plugins'         => !empty($items['plugin']) ? $items['plugin'] : null,
 	'moduleclass_sfx' => $moduleclass_sfx,
 	'task'            => $position . 'JtFavForm',
 	'view'            => $params->get('show_items_tabbed', 'list'),
+	'items'           => $items,
 );
 
 if (ModJtFavoritesHelper::$loadJs)

@@ -18,40 +18,37 @@ extract($displayData);
 
 /**
  * @var   FileLayout  $this
- * @var   array       $customs          List of favorites custom actions
- * @var   array       $core             List of core actions
- * @var   array       $modules          List of favorites modules
- * @var   array       $plugins          List of favorites plugins
+ * @var   array       $items            List of ordered favorites
  * @var   string      $task             Form id for this position using as clickaction too
  * @var   string      $view             View for items output (tabbed/list)
  * @var   string      $moduleclass_sfx  Module class suffix
  */
 
-switch (true)
-{
-	case !is_null($customs) :
-		$activeTab = 'cpanelcustomsactions';
-		break;
+$tabAction = array(
+	'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE' => array(
+		'tabId' => 'cpanelcustomsactions',
+		'type' => 'customs',
+	),
+	'MOD_JTFAVORITES_VIEW_CORE_TITLE' => array(
+		'tabId' => 'cpanelcoreactions',
+		'type' => 'core',
+	),
+	'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JADMINISTRATOR' => array(
+		'tabId' => 'cpanelmodulesjadministrator',
+		'type' => 'modules',
+	),
+	'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JSITE' => array(
+		'tabId' => 'cpanelmodulesjsite',
+		'type' => 'modules',
+	),
+	'MOD_JTFAVORITES_VIEW_PLUGINS_TITLE' => array(
+		'tabId' => 'cpanelpluginsjsite',
+		'type' => 'plugins',
+	),
+);
 
-	case !is_null($core) :
-		$activeTab = 'cpanelcoreactions';
-		break;
-
-	case !is_null($modules) && isset($modules['JADMINISTRATOR']) :
-		$activeTab = 'cpanelmodulesjadministrator';
-		break;
-
-	case !is_null($modules) && isset($modules['JSITE']) :
-		$activeTab = 'cpanelmodulesjsite';
-		break;
-
-	case !is_null($plugins) :
-		$activeTab = 'cpanelpluginsjsite';
-		break;
-
-	default :
-		break;
-} ?>
+$activeTab = $tabAction[array_key_first($items)]['tabId'];
+?>
 <!-- Start mod_jtfavorites.cpanel -->
 <div class="mod_jtfavorites cpanel<?php echo $moduleclass_sfx; ?>">
 	<form method="post" name="<?php echo $task; ?>" id="<?php echo $task; ?>"
@@ -61,46 +58,17 @@ switch (true)
 		<?php if ($view == 'tabbed') : ?>
 			<?php echo HTMLHelper::_('bootstrap.startTabSet', 'cpanelListFavorites', array('active' => $activeTab)); ?>
 		<?php endif; ?>
-		<?php if (!is_null($customs)) : ?>
+		<?php foreach ($items as $tabTitle => $itemList) : ?>
 			<?php $sublayout = array(
-				'title' => Text::_('MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE'),
-				'type'  => 'customs',
-				'items' => $customs,
+				'title' => Text::_($tabTitle),
+				'tabId' => $tabAction[$tabTitle]['tabId'],
+				'type'  => $tabAction[$tabTitle]['type'],
+				'items' => $itemList,
 				'task'  => $task,
 				'view'  => $view,
 			); ?>
 			<?php echo $this->sublayout('items', $sublayout); ?>
-		<?php endif; ?>
-		<?php if (!is_null($core)) : ?>
-			<?php $sublayout = array(
-				'title' => Text::_('MOD_JTFAVORITES_VIEW_CORE_TITLE'),
-				'type'  => 'core',
-				'items' => $core,
-				'task'  => $task,
-				'view'  => $view,
-			); ?>
-			<?php echo $this->sublayout('items', $sublayout); ?>
-		<?php endif; ?>
-		<?php if (!is_null($modules)) : ?>
-			<?php $sublayout = array(
-				'title' => Text::_('MOD_JTFAVORITES_VIEW_MODULES_TITLE'),
-				'type'  => 'modules',
-				'items' => $modules,
-				'task'  => $task,
-				'view'  => $view,
-			); ?>
-			<?php echo $this->sublayout('items', $sublayout); ?>
-		<?php endif; ?>
-		<?php if (!is_null($plugins)) : ?>
-			<?php $sublayout = array(
-				'title' => Text::_('MOD_JTFAVORITES_VIEW_PLUGINS_TITLE'),
-				'type'  => 'plugins',
-				'items' => $plugins,
-				'task'  => $task,
-				'view'  => $view,
-			); ?>
-			<?php echo $this->sublayout('items', $sublayout); ?>
-		<?php endif; ?>
+		<?php endforeach; ?>
 		<?php if ($view == 'tabbed') : ?>
 			<?php echo HTMLHelper::_('bootstrap.endTabSet'); ?>
 		<?php endif; ?>

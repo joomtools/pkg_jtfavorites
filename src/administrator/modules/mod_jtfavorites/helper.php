@@ -46,8 +46,24 @@ class ModJtFavoritesHelper
 	public static $loadJs = true;
 
 	/**
-	 * List of links for core actions
+	 * List of tab titles
 	 * 
+	 * @var     array
+	 * @since   1.1.0
+	 */
+	private $tabTitles = array(
+		"custom" => 'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE',
+		"core" => 'MOD_JTFAVORITES_VIEW_CORE_TITLE',
+		"plugin" => 'MOD_JTFAVORITES_VIEW_PLUGINS_TITLE',
+		"module" => array(
+			'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JSITE',
+			'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JADMINISTRATOR',
+		),
+	);
+
+	/**
+	 * List of links for core actions
+	 *
 	 * @var     array
 	 * @since   1.1.0
 	 */
@@ -199,8 +215,13 @@ class ModJtFavoritesHelper
 			// Translate title
 			$item->title = Text::_($item->title);
 
-			// Distinction between page and administration extensions
-			$item->client = $item->client_id ? 'JADMINISTRATOR' : 'JSITE';
+			// Defins tab title
+			$item->tab = $this->tabTitles[$item->type];
+
+			if ($item->type == 'module')
+			{
+				$item->tab = $this->tabTitles[$item->type][$item->client_id];
+			}
 
 			// Set param to show trashed items
 			$item->access['show.trashed.items'] = $showTrashedItems;
@@ -254,34 +275,29 @@ class ModJtFavoritesHelper
 		}
 
 		// Rearrange item list by type
-		$items = ArrayHelper::pivot($items, 'type');
+		$items = ArrayHelper::pivot($items, 'tab');
+
+		$order       = array(
+			'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE',
+			'MOD_JTFAVORITES_VIEW_CORE_TITLE',
+			'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JSITE',
+			'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JADMINISTRATOR',
+			'MOD_JTFAVORITES_VIEW_PLUGINS_TITLE',
+		);
+
+		$items = $this->sortItems($order, $items);
 
 		// Rearrange type list by client
-		foreach ($items as $type => $item)
+		foreach ($items as $tab => $itemlist)
 		{
-			// Equalization of the entries as array list
-			if (!is_array($item))
-			{
-				$items[$type] = array($item);
-			}
 
-			$items[$type] = ArrayHelper::pivot($items[$type], 'client');
-
-			foreach ($items[$type] as $client => $clientlist)
-			{
-				// Equalization of the entries as array list
-				if (!is_array($clientlist))
-				{
-					$items[$type][$client] = array($clientlist);
-				}
-
-				if (in_array($type, array('custom', 'core')))
+				if (in_array($tab, array('MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE', 'MOD_JTFAVORITES_VIEW_CORE_TITLE'))
+					|| count($itemlist) <= 1)
 				{
 					continue;
 				}
 
-				$items[$type][$client] = ArrayHelper::sortObjects($items[$type][$client], 'title');
-			}
+				$items[$tab] = ArrayHelper::sortObjects($itemlist, 'title');
 		}
 
 		$loadJs = array_values($loadJs);
@@ -498,7 +514,7 @@ class ModJtFavoritesHelper
 
 			$customItem                      = new stdClass;
 			$customItem->type                = $type;
-			$customItem->client              = 'actions';
+			$customItem->tab                 = $this->tabTitles[$type];;
 			$customItem->title               = Text::_($customAction->action_title);
 			$customItem->link                = $type == 'core' ? $this->getCoreLink($customAction) : $filter->clean($customAction->action_link);
 			$customItem->target              = !empty($customAction->action_link_target) ? $customAction->action_link_target : null;
@@ -540,4 +556,27 @@ class ModJtFavoritesHelper
 
 		return $link;
 	}
+
+	/**
+	 * Sort items by order
+	 * @param   array  $order  List of keys to sort by
+	 * @param   array  $items
+	 *
+	 * @return   array
+	 * @since    1.1.0
+	 */
+	private function sortItems(array $order, array $items)
+	{
+		$sortedItems = array();
+
+		foreach ($order as $type)
+		{
+			if (!empty($items[$type]))
+			{
+				$sortedItems[$type] = !is_array($items[$type]) ? array($items[$type]) : $items[$type];
+			}
+		}
+
+		return $sortedItems;
+}
 }
