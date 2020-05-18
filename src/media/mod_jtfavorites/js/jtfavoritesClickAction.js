@@ -145,7 +145,7 @@ var JtFavorites = window.JtFavorites || {};
 	 * Add CSRF-Token on custom actions and return message on success
 	 */
 	JtFavorites.customActionsAddGetParams = function () {
-		var items = document.querySelectorAll('.mod_jtfavorites .customs .ext-link, .mod_jtfavorites .core .ext-link'),
+		var items = document.querySelectorAll('.mod_jtfavorites .core .ext-link'),
 			token = window.Joomla.getOptions('csrf.token', ''),
 			processIconCss = document.createElement('style'),
 			processIcon = document.createElement('span'),
