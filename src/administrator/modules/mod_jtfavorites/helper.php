@@ -16,7 +16,6 @@ use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Plugin\PluginHelper;
-use Joomla\CMS\Uri\Uri;
 use Joomla\Utilities\ArrayHelper;
 
 /**
@@ -500,7 +499,7 @@ class ModJtFavoritesHelper
 			$customItem->client              = 'actions';
 			$customItem->title               = Text::_($customAction->action_title);
 			$customItem->link                = $type == 'core' ? $this->getCoreLink($customAction) : $filter->clean($customAction->action_link);
-			$customItem->isInternal          = Uri::isInternal($customItem->link);
+			$customItem->target              = !empty($customAction->action_link_target) ? $customAction->action_link_target : null;
 			$customItem->access['core.edit'] = true;
 
 			$items[] = $customItem;

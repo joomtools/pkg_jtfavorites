@@ -24,12 +24,13 @@ extract($displayData);
  * @var   string      $task  Form id for this position using as clickaction too
  */
 
-$row =& ModJtFavoritesHelper::$row;
+$target = '';
+$row    =& ModJtFavoritesHelper::$row;
 
 if (in_array($type, array('customs', 'core')))
 {
 	$targetLink = array($type => $item->link);
-	$target = !$item->isInternal ? ' target="_blank"' : '';
+	$target = !empty($item->target) ? ' target="_blank"' : '';
 }
 else
 {
@@ -37,7 +38,6 @@ else
 	$editor      = (int) $item->editor ? Factory::getUser((int) $item->editor)->name : '';
 	$clickAction = $task . (int) $item->extension_id . 'Cb';
 	$extId       = (int) $item->extension_id;
-	$target = '';
 	$targetLink  = array(
 		'modules' => 'index.php?option=com_modules&task=module.edit&id=' . $extId,
 		'plugins' => 'index.php?option=com_plugins&task=plugin.edit&extension_id=' . $extId,

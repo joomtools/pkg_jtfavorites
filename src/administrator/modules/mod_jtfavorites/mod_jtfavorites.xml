@@ -110,6 +110,14 @@
 						       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_LABEL"
 						       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_DESC"
 						/>
+						<field name="action_link_target"
+						       type="list"
+						       label="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_TARGET_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_TARGET_DESC"
+						>
+							<option value="1">MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_TARGET_OPTION_BLANK_LABEL</option>
+							<option value="0">MOD_JTFAVORITES_FIELD_CUSTOM_ACTION_URL_TARGET_OPTION_SELF_LABEL</option>
+						</field>
 					</form>
 				</field>
 			</fieldset>
