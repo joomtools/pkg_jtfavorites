@@ -27,23 +27,23 @@ extract($displayData);
 
 $tabAction = array(
 	'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE' => array(
-		'tabId' => 'cpanelcustomsactions',
+		'tabId' => 'iconcustomsactions',
 		'type' => 'customs',
 	),
 	'MOD_JTFAVORITES_VIEW_CORE_TITLE' => array(
-		'tabId' => 'cpanelcoreactions',
+		'tabId' => 'iconcoreactions',
 		'type' => 'core',
 	),
 	'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JADMINISTRATOR' => array(
-		'tabId' => 'cpanelmodulesjadministrator',
+		'tabId' => 'iconmodulesjadministrator',
 		'type' => 'modules',
 	),
 	'MOD_JTFAVORITES_VIEW_MODULES_TITLE_JSITE' => array(
-		'tabId' => 'cpanelmodulesjsite',
+		'tabId' => 'iconmodulesjsite',
 		'type' => 'modules',
 	),
 	'MOD_JTFAVORITES_VIEW_PLUGINS_TITLE' => array(
-		'tabId' => 'cpanelpluginsjsite',
+		'tabId' => 'iconpluginsjsite',
 		'type' => 'plugins',
 	),
 );
