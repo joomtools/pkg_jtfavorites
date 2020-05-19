@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.9" type="package" method="upgrade">
-    <name>JT - Favorites</name>
+    <name>PKG - JT - Favorites</name>
     <packagename>jtfavorites</packagename>
 	<author>Guido De Gobbis</author>
 	<creationDate>##DATE##</creationDate>
@@ -10,9 +10,10 @@
 	<license>GNU General Public License version 3 or later</license>
 	<version>##VERSION##</version>
 	<description>Pakage to manage a list of favorites for plugin/module action.</description>
-
+	<blockChildUninstall>true</blockChildUninstall>
 	<files>
-		##FILES##
+		<file type="module" id="mod_jtfavorites" client="administrator">mod_jtfavorites.zip</file>
+		<file type="plugin" id="jtfavorites" group="system">plg_system_jtfavorites.zip</file>
 	</files>
 
 	<updateservers>
