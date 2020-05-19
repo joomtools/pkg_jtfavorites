@@ -245,7 +245,7 @@ class ModJtFavoritesHelper
 				$item->client_id,
 				$item->assets_name,
 				$item->extension_name,
-				$item->extension,
+				$item->extension
 			);
 		}
 
