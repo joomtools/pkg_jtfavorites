@@ -146,6 +146,7 @@ var JtFavorites = window.JtFavorites || {};
 	 */
 	JtFavorites.customActionsAddGetParams = function () {
 		var items = document.querySelectorAll('.mod_jtfavorites .core .ext-link'),
+			checkinIcon = document.querySelectorAll('.mod_jtfavorites .click-action a[onclick*=checkin]'),
 			token = window.Joomla.getOptions('csrf.token', ''),
 			processIconCss = document.createElement('style'),
 			processIcon = document.createElement('span'),
@@ -216,6 +217,10 @@ var JtFavorites = window.JtFavorites || {};
 					onSuccess: function () {
 						elm.parentNode.removeChild(processIcon);
 						elm.parentNode.appendChild(successIcon);
+
+						Array.prototype.forEach.call(checkinIcon, function (el) {
+							el.parentNode.removeChild(el);
+						});
 
 						setTimeout(function () {
 							elm.parentNode.removeChild(successIcon);
