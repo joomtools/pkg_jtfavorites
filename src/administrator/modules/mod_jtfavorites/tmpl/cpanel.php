@@ -1,18 +1,18 @@
 <?php
 /**
- * @package     Joomla.Administrator
- * @subpackage  mod_custom
+ * @package      Joomla.Administrator
+ * @subpackage   mod_jtfavorites
  *
- * @copyright   Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author       Guido De Gobbis <support@joomtools.de>
+ * @copyright    2020 JoomTools.de - All rights reserved.
+ * @license      GNU General Public License version 3 or later
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
-use Joomla\CMS\Router\Route;
-
-defined('_JEXEC') or die;
 
 extract($displayData);
 
@@ -52,8 +52,8 @@ $activeTab = $tabAction[array_key_first($items)]['tabId'];
 <!-- Start mod_jtfavorites.cpanel -->
 <div class="mod_jtfavorites cpanel<?php echo $moduleclass_sfx; ?>">
 	<form method="post" name="<?php echo $task; ?>" id="<?php echo $task; ?>"
-		  data-modules-action="<?php echo Route::_('index.php?option=com_modules'); ?>"
-		  data-plugins-action="<?php echo Route::_('index.php?option=com_plugins&view=plugins'); ?>"
+		  data-modules-action="<?php echo 'index.php?option=com_modules'; ?>"
+		  data-plugins-action="<?php echo 'index.php?option=com_plugins&view=plugins'; ?>"
 	>
 		<?php if ($view == 'tabbed') : ?>
 			<?php echo HTMLHelper::_('bootstrap.startTabSet', 'cpanelListFavorites', array('active' => $activeTab)); ?>
