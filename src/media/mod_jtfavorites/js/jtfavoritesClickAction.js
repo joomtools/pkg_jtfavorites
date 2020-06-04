@@ -202,6 +202,7 @@ var JtFavorites = window.JtFavorites || {};
 			var href = elm.getAttribute('href');
 
 			elm.addEventListener('click', function(event){
+				event.stopPropagation();
 				event.preventDefault();
 
 				elm.parentNode.appendChild(processIcon);
