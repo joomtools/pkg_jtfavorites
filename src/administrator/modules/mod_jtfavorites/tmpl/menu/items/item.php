@@ -26,7 +26,7 @@ extract($displayData);
  */
 
 $target = '';
-$row    =& ModJtFavoritesHelper::$row;
+$row =& ModJtFavoritesHelper::$row;
 
 if (in_array($type, array('customs', 'core')))
 {
@@ -44,25 +44,17 @@ else
 		'plugins' => 'index.php?option=com_plugins&task=plugin.edit&extension_id=' . $extId,
 	);
 } ?>
-<!-- Start mod_jtfavorites.cpanel.items.item -->
-<tr class="row<?php echo $row % 2; ?>">
+<!-- Start mod_jtfavorites.menu.items.item -->
+<li style="float:none;">
 	<?php if (!in_array($type, array('customs', 'core'))) : ?>
-		<td class="span1">
 		<span class="btn-group click-action">
-			<?php echo HTMLHelper::_('jgrid.published', (int) $item->state, $row, $type . '.', $item->access['core.edit.state'], $clickAction); ?>
-			<?php // Create dropdown items and render the dropdown list. ?>
-			<?php if ($item->access['core.edit.state'] && $type == 'modules') : ?>
-				<?php HTMLHelper::_('actionsdropdown.' . ((int) $item->state === -2 ? 'un' : '') . 'trash', $clickAction . $row, $type); ?>
-				<?php echo HTMLHelper::_('actionsdropdown.render', $item->title); ?>
-			<?php endif; ?>
-			<?php if (!empty($editor)) : ?>
-				<?php echo HTMLHelper::_('jgrid.checkedout', $row, $editor, $item->checked_out_time, $type . '.', $canCheckin, $clickAction); ?>
-			<?php endif; ?>
+		<?php echo HTMLHelper::_('jgrid.published', (int) $item->state, $row, $type . '.', $item->access['core.edit.state'], $clickAction); ?>
+		<?php if (!empty($editor)) : ?>
+			<?php echo HTMLHelper::_('jgrid.checkedout', $row, $editor, $item->checked_out_time, $type . '.', $canCheckin, $clickAction); ?>
+		<?php endif; ?>
 		</span>
-		</td>
 	<?php endif; ?>
-	<td>
-	<span class="ext-title">
+	<span class="btn btn-link ext-title">
 	<?php if ($item->access['core.edit'] && !empty($targetLink[$type])) : ?>
 		<a class="hasTooltip ext-link" href="<?php echo OutputFilter::ampReplace($targetLink[$type]); ?>"
 		   title="<?php echo Text::_('JACTION_EDIT'); ?>"<?php echo $target; ?>>
@@ -72,11 +64,10 @@ else
 		<strong><?php echo $item->title; ?></strong>
 	<?php endif; ?>
 	</span>
-		<span class="hidden">
+	<span class="hidden">
 		<?php echo HTMLHelper::_('grid.id', $row, $extId, false, 'cid', $clickAction); ?>
 	</span>
 
-		<?php $row++; ?>
-	</td>
-</tr>
-<!-- End mod_jtfavorites.cpanel.items.item -->
+	<?php $row++; ?>
+</li>
+<!-- End mod_jtfavorites.menu.items.item -->

@@ -8,10 +8,7 @@
  * @license      GNU General Public License version 3 or later
  */
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Language\Text;
-use Joomla\Utilities\ArrayHelper;
 use Joomla\Registry\Registry;
 
 defined('_JEXEC') or die;
