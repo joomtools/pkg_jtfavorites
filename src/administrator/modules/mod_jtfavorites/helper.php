@@ -522,6 +522,8 @@ class ModJtFavoritesHelper
 	private function getCustomAndCoreActions($customActions, $type)
 	{
 		$filter = new InputFilter;
+		$items  = array();
+
 		foreach ($customActions as $customAction)
 		{
 			if (($type == 'custom' && (empty($customAction->action_title) || empty($customAction->action_link)))
