@@ -10,9 +10,12 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Table\Table;
 
 /**
  * System plugin to manage a list of favorites for plugin/module action.
@@ -21,6 +24,14 @@ use Joomla\CMS\Factory;
  */
 class PlgSystemJtfavorites extends CMSPlugin
 {
+	/**
+	 * Define integer for the state 'trash'
+	 *
+	 * @var     int
+	 * @since   1.2.0
+	 */
+	const TRASH = -2;
+
 	/**
 	 * @var     JApplicationCms
 	 * @since   1.0.0
@@ -505,5 +516,152 @@ class PlgSystemJtfavorites extends CMSPlugin
 		$this->db->setQuery($query)->execute();
 
 		return;
+	}
+
+	/**
+	 * Check if current user is allowed to send the data
+	 *
+	 * @return   bool
+	 * @since    1.2.0
+	 */
+	private function isAllowedUser()
+	{
+		return JFactory::getUser()->authorise('core.admin');
+	}
+
+	/**
+	 * Check valid AJAX request
+	 *
+	 * @return   bool
+	 * @since    1.2.0
+	 */
+	private function isAjaxRequest()
+	{
+		return strtolower($this->app->input->server->get('HTTP_X_REQUESTED_WITH', '')) === 'xmlhttprequest';
+	}
+
+	/**
+	 * Ajax methode
+	 *
+	 * @return   void
+	 * @throws   Exception
+	 * @since    1.2.0
+	 */
+	public function onAjaxJtvaforitesClearTrash()
+	{
+		$accessDenied = Text::_('JGLOBAL_AUTH_ACCESS_DENIED');
+
+		if (!$this->app->getSession()->checkToken())
+		{
+			throw new Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_TOKEN', $accessDenied), 403);
+		}
+
+		if (!$this->isAllowedUser())
+		{
+			throw new Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_VALID_USER', $accessDenied), 403);
+		}
+
+		if (!$this->isAjaxRequest())
+		{
+			throw new Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_AJAX_REQUEST', $accessDenied), 403);
+		}
+
+		if (!empty($task = $this->app->input->getString('task')))
+		{
+			list($trash, $clientId) = explode('.', $task);
+
+			switch (true)
+			{
+				case $trash == 'content':
+					$this->clearContentTrash((int) $clientId);
+					break;
+
+				case $trash == 'menu':
+					$ids = $this->getTrashedItems($trash, $clientId);
+
+					if (!empty($ids))
+					{
+						Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/tables', 'MenusTable');
+						BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/models', 'MenusModel');
+						$model = BaseDatabaseModel::getInstance('Item', 'MenusModel');
+						$model->delete($ids);
+					}
+					break;
+
+				case $trash == 'modules':
+					$ids = $this->getTrashedItems($trash, $clientId);
+
+					if (!empty($ids))
+					{
+						BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_modules/models', 'ModulesModel');
+						$model = BaseDatabaseModel::getInstance('Module', 'ModulesModel');
+						$model->delete($ids);
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
+	/**
+	 * Clear content trashes items
+	 *
+	 * @param    int  $clientId
+	 *
+	 * @return   void
+	 * @throws   Exception
+	 * @since    1.2.0
+	 */
+	private function clearContentTrash($clientId)
+	{
+		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_content/models', 'ContentModel');
+		$model = BaseDatabaseModel::getInstance('Article', 'ContentModel');
+
+		$query = $this->db->getQuery(true)
+			->select($this->db->qn('id'))
+			->from($this->db->qn('#__content'))
+			->where($this->db->qn('state') . '=' . $this->db->q((int) self::TRASH));
+		try
+		{
+			$ids = $this->db->setQuery($query)->loadAssocList('id');
+		}
+		catch (Exception $e)
+		{
+			throw new Exception(Text::_('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_DB'), 500);
+		}
+
+		$ids = array_keys($ids);
+
+		$model->delete($ids);
+	}
+
+	/**
+	 * Get trashed items
+	 *
+	 * @param    string  $trash
+	 * @param    int     $clientId
+	 *
+	 * @return   array
+	 * @throws   Exception
+	 * @since    1.2.0
+	 */
+	private function getTrashedItems($trash, $clientId)
+	{
+		$query = $this->db->getQuery(true)
+			->select($this->db->qn('id'))
+			->from($this->db->qn('#__' . $trash))
+			->where($this->db->qn('published') . '=' . $this->db->q((int) self::TRASH));
+		try
+		{
+			$ids = $this->db->setQuery($query)->loadAssocList('id');
+		}
+		catch (Exception $e)
+		{
+			throw new Exception(Text::_('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_DB'), 500);
+		}
+
+		return array_keys($ids);
 	}
 }

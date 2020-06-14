@@ -10,9 +10,12 @@
 	<version>##VERSION##</version>
 	<description>MOD_JTFAVORITES_XML_DESCRIPTION</description>
 
+	<scriptfile>script.php</scriptfile>
+
 	<files>
 		##MODULE_FILES##
 	</files>
+
 	<media destination="mod_jtfavorites" folder="media/mod_jtfavorites">
 		##MEDIA_FILES##
 	</media>
@@ -168,7 +171,7 @@
 				</field>
 				<field name="core_actions"
 				       type="subform"
-				       default='{"core_actions0":{"action_title":"MOD_MENU_CLEAR_CACHE","use_core_action":"1","action_option":"com_cache"},"core_actions1":{"action_title":"MOD_MENU_GLOBAL_CHECKIN","use_core_action":"1","action_option":"com_checkin"}}'
+				       default='{"core_actions0":{"action_title":"MOD_MENU_CLEAR_CACHE","use_core_action":"1","action_option":"com_cache"},"core_actions1":{"action_title":"MOD_MENU_GLOBAL_CHECKIN","use_core_action":"1","action_option":"com_checkin"},"core_actions2":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_CONTENT","use_core_action":"1","action_option":"clear_trash_content"},"core_actions3":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_MENU","use_core_action":"0","action_option":"clear_trash_menu"},"core_actions4":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_MODULES_SITE","use_core_action":"0","action_option":"clear_trash_modules_site"},"core_actions5":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_MODULES_ADMIN","use_core_action":"0","action_option":"clear_trash_modules_admin"}}'
 				       label="MOD_JTFAVORITES_FIELD_ACTIONS_LABEL"
 				       description="MOD_JTFAVORITES_FIELD_CORE_ACTIONS_DESC"
 				       multiple="true"
@@ -190,8 +193,8 @@
 						<field name="action_checkin_tables"
 						       type="text"
 						       class="span10"
-						       label="MOD_JTFAVORITES_FIELD_ACTION_CHECKIN_TABLES_LABEL"
-						       description="MOD_JTFAVORITES_FIELD_ACTION_CHECKIN_TABLES_DESC"
+						       label="MOD_JTFAVORITES_FIELD_CORE_ACTION_CHECKIN_TABLES_LABEL"
+						       description="MOD_JTFAVORITES_FIELD_CORE_ACTION_CHECKIN_TABLES_DESC"
 						       showon="action_option:com_checkin"
 						/>
 						<field name="use_core_action"
