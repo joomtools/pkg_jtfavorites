@@ -69,9 +69,9 @@ else
 		<strong><?php echo $item->title; ?></strong>
 	<?php endif; ?>
 	</span>
-	<span class="hidden">
-		<?php echo HTMLHelper::_('grid.id', $row, $extId, false, 'cid', $clickAction); ?>
-	</span>
+	<?php if (!in_array($type, array('customs', 'core'))) : ?>
+		<span class="hidden"><?php echo HTMLHelper::_('grid.id', $row, $extId, false, 'cid', $clickAction); ?></span>
+	<?php endif; ?>
 
 	<?php $row++; ?>
 </li>

@@ -54,7 +54,7 @@ else
 		<?php endif; ?>
 		</span>
 	<?php endif; ?>
-	<span class="btn btn-link ext-title">
+	<span class="btn btn-link ext-title" style="text-align:left;">
 	<?php if ($item->access['core.edit'] && !empty($targetLink[$type])) : ?>
 		<a class="hasTooltip ext-link" href="<?php echo OutputFilter::ampReplace($targetLink[$type]); ?>"
 		   title="<?php echo Text::_('JACTION_EDIT'); ?>"<?php echo $target; ?>>
@@ -64,9 +64,9 @@ else
 		<strong><?php echo $item->title; ?></strong>
 	<?php endif; ?>
 	</span>
-	<span class="hidden">
-		<?php echo HTMLHelper::_('grid.id', $row, $extId, false, 'cid', $clickAction); ?>
-	</span>
+	<?php if (!in_array($type, array('customs', 'core'))) : ?>
+		<span class="hidden"><?php echo HTMLHelper::_('grid.id', $row, $extId, false, 'cid', $clickAction); ?></span>
+	<?php endif; ?>
 
 	<?php $row++; ?>
 </li>

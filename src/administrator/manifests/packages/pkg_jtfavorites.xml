@@ -11,6 +11,10 @@
 	<version>##VERSION##</version>
 	<description>Pakage to manage a list of favorites for plugin/module action.</description>
 	<blockChildUninstall>true</blockChildUninstall>
+	<php_minimum>5.6</php_minimum>
+
+	<scriptfile>script.php</scriptfile>
+
 	<files>
 		<file type="module" id="mod_jtfavorites" client="administrator">mod_jtfavorites.zip</file>
 		<file type="plugin" id="jtfavorites" group="system">plg_system_jtfavorites.zip</file>

@@ -150,6 +150,7 @@ var JtFavorites = window.JtFavorites || {};
 			token = window.Joomla.getOptions('csrf.token', ''),
 			processIconCss = document.createElement('style'),
 			processIcon = document.createElement('span'),
+			errorMessage = document.createElement('span'),
 			successIcon = document.createElement('span');
 
 		processIconCss.setAttribute("type", "text/css");
@@ -158,6 +159,7 @@ var JtFavorites = window.JtFavorites || {};
 			"  height: 14px;\n" +
 			"  vertical-align: middle;\n" +
 			"  line-height: 18px;\n" +
+			"  margin-right: 4px;\n" +
 			"}\n" +
 			".spinner > span {\n" +
 			"  background-color: #333;\n" +
@@ -191,21 +193,25 @@ var JtFavorites = window.JtFavorites || {};
 			"}"));
 		document.head.appendChild(processIconCss);
 
-		processIcon.setAttribute('class','spinner');
-		processIcon.setAttribute('aria-hidden','true');
+		processIcon.setAttribute('class', 'spinner');
+		processIcon.setAttribute('aria-hidden', 'true');
 		processIcon.innerHTML = '<span class="rect1"></span><span class="rect2"></span><span class="rect3"></span>';
 
-		successIcon.setAttribute('class','icon-save');
-		successIcon.setAttribute('aria-hidden','true');
+		successIcon.setAttribute('class', 'icon-save');
+		successIcon.setAttribute('aria-hidden', 'true');
+
+		errorMessage.setAttribute('class', 'error');
+		errorMessage.setAttribute('aria-hidden', 'true');
 
 		Array.prototype.forEach.call(items, function (elm) {
 			var href = elm.getAttribute('href');
 
-			elm.addEventListener('click', function(event){
+			elm.addEventListener('click', function (event) {
 				event.stopPropagation();
 				event.preventDefault();
 
-				elm.parentNode.appendChild(processIcon);
+				//elm.parentNode.appendChild(processIcon);
+				elm.parentNode.prepend(processIcon);
 
 				window.Joomla.request({
 					url: href,
@@ -215,16 +221,35 @@ var JtFavorites = window.JtFavorites || {};
 					onError: function (xhr) {
 						console.error('ERROR: ', xhr);
 					},
-					onSuccess: function () {
+					onSuccess: function (response) {
+						var icon;
+
+						try {
+							response = JSON.parse(response);
+						} catch (e) {
+							response = {succsess: true};
+						}
+
 						elm.parentNode.removeChild(processIcon);
-						elm.parentNode.appendChild(successIcon);
+
+						if (response.success === true) {
+							elm.parentNode.prepend(successIcon);
+							icon = successIcon;
+						}
+
+						if (response.success === false) {
+							console.error('ERROR: ', response.message);
+							errorMessage.innerHTML = '<span style="color:red;">' + response.message + '</span>';
+							elm.parentNode.appendChild(errorMessage);
+							icon = errorMessage;
+						}
 
 						Array.prototype.forEach.call(checkinIcon, function (el) {
 							el.parentNode.removeChild(el);
 						});
 
 						setTimeout(function () {
-							elm.parentNode.removeChild(successIcon);
+							elm.parentNode.removeChild(icon);
 						}, 4000);
 					}
 				});

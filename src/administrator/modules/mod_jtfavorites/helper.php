@@ -84,6 +84,10 @@ class ModJtFavoritesHelper
 	private $coreLinks = array(
 		"com_cache" => 'index.php?option=com_cache&task=deleteAll&boxchecked=999',
 		"com_checkin" => 'index.php?option=com_checkin&task=checkin&boxchecked=999',
+		"clear_trash_menu" => 'index.php?option=com_ajax&task=menu.0&group=system&plugin=jtvaforitesClearTrash&format=json',
+		"clear_trash_content" => 'index.php?option=com_ajax&task=content.0&group=system&plugin=jtvaforitesClearTrash&format=json',
+		"clear_trash_modules_site" => 'index.php?option=com_ajax&task=modules.0&group=system&plugin=jtvaforitesClearTrash&format=json',
+		"clear_trash_modules_admin" => 'index.php?option=com_ajax&task=modules.1&group=system&plugin=jtvaforitesClearTrash&format=json',
 	);
 
 	/**
