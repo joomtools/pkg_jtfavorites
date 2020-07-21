@@ -141,11 +141,17 @@ var JtFavorites = window.JtFavorites || {};
 		});
 	};
 
+	JtFavorites.isExternal = function(url) {
+		var res = url.match(/(http(s)?)?(\/)?\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+		return (res !== null);
+	};
+
 	/**
 	 * Add CSRF-Token on custom actions and return message on success
 	 */
 	JtFavorites.customActionsAddGetParams = function () {
-		var items = document.querySelectorAll('.mod_jtfavorites .core .ext-link'),
+		var activateTimeout,
+			items = document.querySelectorAll('.mod_jtfavorites .core .ext-link, .mod_jtfavorites .customs .ext-link'),
 			checkinIcon = document.querySelectorAll('.mod_jtfavorites .click-action a[onclick*=checkin]'),
 			token = window.Joomla.getOptions('csrf.token', ''),
 			processIconCss = document.createElement('style'),
@@ -204,13 +210,19 @@ var JtFavorites = window.JtFavorites || {};
 		errorMessage.setAttribute('aria-hidden', 'true');
 
 		Array.prototype.forEach.call(items, function (elm) {
-			var href = elm.getAttribute('href');
+			var href = elm.getAttribute('href'),
+				isExternal = JtFavorites.isExternal(href);
+
+			console.log('isExternal: ', isExternal);
+
+			if (isExternal === true) {
+				return;
+			}
 
 			elm.addEventListener('click', function (event) {
 				event.stopPropagation();
 				event.preventDefault();
 
-				//elm.parentNode.appendChild(processIcon);
 				elm.parentNode.prepend(processIcon);
 
 				window.Joomla.request({
@@ -234,7 +246,11 @@ var JtFavorites = window.JtFavorites || {};
 
 						if (response.success === true) {
 							elm.parentNode.prepend(successIcon);
+							if (elm.parentNode.contains(errorMessage)) {
+								elm.parentNode.removeChild(errorMessage);
+							}
 							icon = successIcon;
+							activateTimeout = true;
 						}
 
 						if (response.success === false) {
@@ -242,15 +258,23 @@ var JtFavorites = window.JtFavorites || {};
 							errorMessage.innerHTML = '<span style="color:red;">' + response.message + '</span>';
 							elm.parentNode.appendChild(errorMessage);
 							icon = errorMessage;
+							activateTimeout = false;
 						}
 
 						Array.prototype.forEach.call(checkinIcon, function (el) {
-							el.parentNode.removeChild(el);
+							if (null === el.parentNode) {
+								return;
+							}
+							if (el.parentNode.contains(el)) {
+								el.parentNode.removeChild(el);
+							}
 						});
 
-						setTimeout(function () {
-							elm.parentNode.removeChild(icon);
-						}, 4000);
+						if (activateTimeout) {
+							setTimeout(function () {
+								elm.parentNode.removeChild(icon);
+							}, 4000);
+						}
 					}
 				});
 			});
