@@ -11,11 +11,11 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
-use Joomla\Filter\InputFilter;
 use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\Filter\InputFilter;
 use Joomla\Utilities\ArrayHelper;
 
 /**
@@ -312,14 +312,13 @@ class ModJtFavoritesHelper
 		// Rearrange type list by client
 		foreach ($items as $tab => $itemlist)
 		{
+			if (in_array($tab, array('MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE', 'MOD_JTFAVORITES_VIEW_CORE_TITLE'))
+				|| count($itemlist) <= 1)
+			{
+				continue;
+			}
 
-				if (in_array($tab, array('MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE', 'MOD_JTFAVORITES_VIEW_CORE_TITLE'))
-					|| count($itemlist) <= 1)
-				{
-					continue;
-				}
-
-				$items[$tab] = ArrayHelper::sortObjects($itemlist, 'title');
+			$items[$tab] = ArrayHelper::sortObjects($itemlist, 'title');
 		}
 
 		$loadJs = array_values($loadJs);

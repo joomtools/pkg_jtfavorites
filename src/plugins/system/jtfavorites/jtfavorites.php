@@ -10,11 +10,13 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
+use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
 
 /**
@@ -27,54 +29,61 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Define integer for the state 'trash'
 	 *
-	 * @var     int
-	 * @since   1.2.0
+	 * @var   int
+	 *
+	 * @since  1.2.0
 	 */
 	const TRASH = -2;
 
 	/**
-	 * @var     JApplicationCms
-	 * @since   1.0.0
+	 * @var   CMSApplication
+	 *
+	 * @since  1.0.0
 	 */
 	protected $app;
 
 	/**
 	 * Database object.
 	 *
-	 * @var     JDatabaseDriver
-	 * @since   1.0.0
+	 * @var   JDatabaseDriver
+	 *
+	 * @since  1.0.0
 	 */
 	protected $db;
 
 	/**
 	 * Load the language file on instantiation.
 	 *
-	 * @var     bool
-	 * @since   1.0.0
+	 * @var   boolean
+	 *
+	 * @since  1.0.0
 	 */
 	protected $autoloadLanguage = true;
 
 	/**
 	 * List of allowed extensions to add to favorites
 	 *
-	 * @var     string
-	 * @since   1.0.0
+	 * @var   string
+	 *
+	 * @since  1.0.0
 	 */
 	private $assetsName;
 
 	/**
 	 * List of allowed extensions to add to favorites
 	 *
-	 * @var     bool
-	 * @since   1.0.0
+	 * @var   boolean
+	 *
+	 * @since  1.0.0
 	 */
 	private $accessAllowed;
 
 	/**
 	 * List of allowed extensions to add to favorites
 	 *
-	 * @var     array
-	 * @since   1.0.0
+	 * @var   array
+	 *
+	 * @since  1.0.0
 	 */
 	private $allowedExtensions = array(
 		// Plugins
@@ -90,8 +99,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * List of needed permissions to add to favorites
 	 *
-	 * @var     array
-	 * @since   1.0.0
+	 * @var   array
+	 *
+	 * @since  1.0.0
 	 */
 	private $neededPermissions = array(
 		// Access to backend
@@ -110,8 +120,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   string  $context  The context for the data
 	 * @param   object  $data     An object containing the data for the form.
 	 *
-	 * @return   bool
-	 * @since    1.0.0
+	 * @return  boolean
+	 *
+	 * @since  1.0.0
 	 */
 	public function onContentPrepareData($context, $data)
 	{
@@ -128,10 +139,10 @@ class PlgSystemJtfavorites extends CMSPlugin
 				'favorite_title'   => '',
 			);
 
-			$dataParams         = $data->getProperties();
-			$options            = array();
-			$options['where']['and'][] = $this->db->qn('user_id') . '=' . (int) Factory::getUser()->id;
-			$options['where']['and'][] = $this->db->qn('assets_name') . '=' . $this->db->q($this->assetsName);
+			$dataParams                = $data->getProperties();
+			$options                   = array();
+			$options['where']['and'][] = $this->db->quoteName('user_id') . '=' . (int) Factory::getUser()->id;
+			$options['where']['and'][] = $this->db->quoteName('assets_name') . '=' . $this->db->quote($this->assetsName);
 
 			// Get name from database, if entry exists
 			$favoriteTitle = $this->findInDb($options);
@@ -159,9 +170,10 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   Form   $form  The form to be altered.
 	 * @param   mixed  $data  The associated data for the form.
 	 *
-	 * @return   bool
-	 * @throws   \Exception
-	 * @since    1.0.0
+	 * @return  boolean
+	 * @throws  \Exception
+	 *
+	 * @since  1.0.0
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
@@ -189,8 +201,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * @param   array    $pks      A list of primary key ids of the extensions that has changed state.
 	 * @param   int      $state    The value of the state that the extensions has been changed to.
 	 *
-	 * @return   void
-	 * @since    1.0.0
+	 * @return  void
+	 *
+	 * @since  1.0.0
 	 */
 	public function onContentChangeState($context, $pks, $state)
 	{
@@ -200,7 +213,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 		{
 			$assetName                = (string) $context . '.' . $extensionId;
 			$search                   = array();
-			$search['where']['and'][] = $this->db->qn('assets_name') . '=' . $this->db->q($assetName);
+			$search['where']['and'][] = $this->db->quoteName('assets_name') . '=' . $this->db->quote($assetName);
 
 			// Get name from database, if entry exists
 			$favoriteTitle = $this->findInDb($search);
@@ -210,28 +223,27 @@ class PlgSystemJtfavorites extends CMSPlugin
 				continue;
 			}
 
-			$options['where']['or'][] = $this->db->qn('assets_name') . '=' . $this->db->q($assetName);
+			$options['where']['or'][] = $this->db->quoteName('assets_name') . '=' . $this->db->quote($assetName);
 		}
 
 		if (!empty($options))
 		{
-			$options['set'][] = $this->db->qn('state') . '=' . (int) $state;
+			$options['set'][] = $this->db->quoteName('state') . '=' . (int) $state;
 
 			$this->updateDbEntry($options);
 		}
-
-		return;
 	}
 
 	/**
 	 * Method is called when an extension is being saved
 	 *
 	 * @param   string   $context  The extension
-	 * @param   JTable   $table    DataBase Table object
+	 * @param   Table    $table    DataBase Table object
 	 * @param   bool     $isNew    If the extension is new or not
 	 *
-	 * @return   void
-	 * @since    1.0.0
+	 * @return  void
+	 *
+	 * @since  1.0.0
 	 */
 	public function onExtensionAfterSave($context, $table, $isNew)
 	{
@@ -248,8 +260,8 @@ class PlgSystemJtfavorites extends CMSPlugin
 		$params                   = $this->app->input->get('jform', array(), 'array');
 		$options                  = array();
 		$search                   = array();
-		$search['where']['and'][] = $this->db->qn('user_id') . '=' . (int) Factory::getUser()->id;
-		$search['where']['and'][] = $this->db->qn('assets_name') . '=' . $this->db->q($this->assetsName);
+		$search['where']['and'][] = $this->db->quoteName('user_id') . '=' . (int) Factory::getUser()->id;
+		$search['where']['and'][] = $this->db->quoteName('assets_name') . '=' . $this->db->quote($this->assetsName);
 
 		// Get name from database, if entry exists
 		$favoriteTitle = $this->findInDb($search);
@@ -267,17 +279,17 @@ class PlgSystemJtfavorites extends CMSPlugin
 		}
 
 		$options['set']   = $search['where']['and'];
-		$options['set'][] = $this->db->qn('client_id') . '=' . (int) $table->get('client_id');
-		$options['set'][] = $this->db->qn('favorite_title') . '=' . $this->db->q((string) strip_tags($params['favorite_title']));
+		$options['set'][] = $this->db->quoteName('client_id') . '=' . (int) $table->get('client_id');
+		$options['set'][] = $this->db->quoteName('favorite_title') . '=' . $this->db->quote((string) strip_tags($params['favorite_title']));
 
 		switch (true)
 		{
 			case 'com_plugins.plugin' == $context :
-				$options['set'][] = $this->db->qn('state') . '=' . (int) $params['enabled'];
+				$options['set'][] = $this->db->quoteName('state') . '=' . (int) $params['enabled'];
 				break;
 
 			default:
-				$options['set'][] = $this->db->qn('state') . '=' . (int) $params['published'];
+				$options['set'][] = $this->db->quoteName('state') . '=' . (int) $params['published'];
 				break;
 		}
 
@@ -299,17 +311,18 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * Method is called when an extension is being deleted from trash
 	 *
 	 * @param   string  $context  The extension
-	 * @param   JTable  $table    DataBase Table object
+	 * @param   Table   $table    DataBase Table object
 	 *
-	 * @return   void
-	 * @since    1.0.0
+	 * @return  void
+	 *
+	 * @since  1.0.0
 	 */
 	public function onExtensionAfterDelete($context, $table)
 	{
 		$assetsName = $context . '.' . (int) $table->get('id');
 
 		$options                  = array();
-		$options['where']['or'][] = $this->db->qn('assets_name') . '=' . $this->db->q($assetsName);
+		$options['where']['or'][] = $this->db->quoteName('assets_name') . '=' . $this->db->quote($assetsName);
 
 		// Delete all deleted extensions entries from database
 		$favoriteTitle = $this->deleteDbEntry($options);
@@ -320,12 +333,13 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 * This method adds a record to #__action_logs contains (message, date, context, user)
 	 * Method is called when an extension is uninstalled
 	 *
-	 * @param   JInstaller  $installer  Installer instance
+	 * @param   Installer   $installer  Installer instance
 	 * @param   int         $eid        Extension id
 	 * @param   int         $result     Installation result
 	 *
-	 * @return   void
-	 * @since    1.0.0
+	 * @return  void
+	 *
+	 * @since  1.0.0
 	 */
 	public function onExtensionAfterUninstall($installer, $eid, $result)
 	{
@@ -335,12 +349,10 @@ class PlgSystemJtfavorites extends CMSPlugin
 		}
 
 		$options                  = array();
-		$options['where']['or'][] = $this->db->qn('assets_name') . ' LIKE ' . $this->db->q('%.' . (int) $eid);
+		$options['where']['or'][] = $this->db->quoteName('assets_name') . ' LIKE ' . $this->db->quote('%.' . (int) $eid);
 
 		// Delete all uninstalled extensions entries from database
 		$this->deleteDbEntry($options);
-
-		return;
 	}
 
 	/**
@@ -348,8 +360,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @param   string  $context  The extension
 	 *
-	 * @return   bool
-	 * @since    1.0.0
+	 * @return  boolean
+	 *
+	 * @since  1.0.0
 	 */
 	private function validateAccess($context)
 	{
@@ -406,8 +419,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Validate user permissions
 	 *
-	 * @return   bool
-	 * @since    1.0.0
+	 * @return  boolean
+	 *
+	 * @since  1.0.0
 	 */
 	private function validateAuthorizations()
 	{
@@ -435,15 +449,16 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @param   array  $options  The options to create the condition.
 	 *
-	 * @return   bool
-	 * @since    1.0.0
+	 * @return  boolean
+	 *
+	 * @since  1.0.0
 	 */
 	private function findInDb($options)
 	{
 		$query = $this->db->getQuery(true);
 
-		$query->select($this->db->qn('favorite_title'))
-			->from($this->db->qn('#__jtfavorites'));
+		$query->select($this->db->quoteName('favorite_title'))
+			->from($this->db->quoteName('#__jtfavorites'));
 
 		foreach ($options['where'] as $k => $where)
 		{
@@ -458,14 +473,15 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @param   array  $options  The options to create the condition.
 	 *
-	 * @return   bool
-	 * @since    1.0.0
+	 * @return  boolean
+	 *
+	 * @since  1.0.0
 	 */
 	public function deleteDbEntry($options)
 	{
 		$query = $this->db->getQuery(true);
 
-		$query->delete($this->db->qn('#__jtfavorites'));
+		$query->delete($this->db->quoteName('#__jtfavorites'));
 
 		foreach ($options['where'] as $k => $where)
 		{
@@ -480,14 +496,15 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @param   array  $options  The options to create the condition.
 	 *
-	 * @return   bool
-	 * @since    1.0.0
+	 * @return  boolean
+	 *
+	 * @since  1.0.0
 	 */
 	private function insertDbEntry($options)
 	{
 		$query = $this->db->getQuery(true);
 
-		$query->insert($this->db->qn('#__jtfavorites'))
+		$query->insert($this->db->quoteName('#__jtfavorites'))
 			->set($options['set']);
 
 		return $this->db->setQuery($query)->execute();
@@ -498,14 +515,15 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 *
 	 * @param   array  $options  The options to create the condition.
 	 *
-	 * @return   void
-	 * @since    1.0.0
+	 * @return  void
+	 *
+	 * @since  1.0.0
 	 */
 	private function updateDbEntry($options)
 	{
 		$query = $this->db->getQuery(true);
 
-		$query->update($this->db->qn('#__jtfavorites'))
+		$query->update($this->db->quoteName('#__jtfavorites'))
 			->set($options['set']);
 
 		foreach ($options['where'] as $k => $where)
@@ -514,15 +532,14 @@ class PlgSystemJtfavorites extends CMSPlugin
 		}
 
 		$this->db->setQuery($query)->execute();
-
-		return;
 	}
 
 	/**
 	 * Check if current user is allowed to send the data
 	 *
-	 * @return   bool
-	 * @since    1.2.0
+	 * @return  boolean
+	 *
+	 * @since  1.2.0
 	 */
 	private function isAllowedUser()
 	{
@@ -532,8 +549,9 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Check valid AJAX request
 	 *
-	 * @return   bool
-	 * @since    1.2.0
+	 * @return  boolean
+	 *
+	 * @since  1.2.0
 	 */
 	private function isAjaxRequest()
 	{
@@ -543,9 +561,10 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Ajax methode
 	 *
-	 * @return   void
-	 * @throws   Exception
-	 * @since    1.2.0
+	 * @return  void
+	 * @throws  \Exception
+	 *
+	 * @since  1.2.0
 	 */
 	public function onAjaxJtvaforitesClearTrash()
 	{
@@ -553,17 +572,17 @@ class PlgSystemJtfavorites extends CMSPlugin
 
 		if (!$this->app->getSession()->checkToken())
 		{
-			throw new Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_TOKEN', $accessDenied), 403);
+			throw new \Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_TOKEN', $accessDenied), 403);
 		}
 
 		if (!$this->isAllowedUser())
 		{
-			throw new Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_VALID_USER', $accessDenied), 403);
+			throw new \Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_VALID_USER', $accessDenied), 403);
 		}
 
 		if (!$this->isAjaxRequest())
 		{
-			throw new Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_AJAX_REQUEST', $accessDenied), 403);
+			throw new \Exception(Text::sprintf('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_AJAX_REQUEST', $accessDenied), 403);
 		}
 
 		if (!empty($task = $this->app->input->getString('task')))
@@ -573,15 +592,15 @@ class PlgSystemJtfavorites extends CMSPlugin
 			switch (true)
 			{
 				case $trash == 'content':
-					$this->clearContentTrash((int) $clientId);
+					$this->clearContentTrash();
 					break;
 
 				case $trash == 'menu':
-					$ids = $this->getTrashedItems($trash, $clientId);
+					$ids = $this->getTrashedItems($trash);
 
 					if (!empty($ids))
 					{
-						Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/tables', 'MenusTable');
+						Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/tables');
 						BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/models', 'MenusModel');
 						$model = BaseDatabaseModel::getInstance('Item', 'MenusModel');
 						$model->delete($ids);
@@ -589,7 +608,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 					break;
 
 				case $trash == 'modules':
-					$ids = $this->getTrashedItems($trash, $clientId);
+					$ids = $this->getTrashedItems($trash);
 
 					if (!empty($ids))
 					{
@@ -608,28 +627,28 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Clear content trashes items
 	 *
-	 * @param    int  $clientId
+	 * @return  void
+	 * @throws  \Exception
 	 *
-	 * @return   void
-	 * @throws   Exception
-	 * @since    1.2.0
+	 * @since  1.2.0
 	 */
-	private function clearContentTrash($clientId)
+	private function clearContentTrash()
 	{
 		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_content/models', 'ContentModel');
 		$model = BaseDatabaseModel::getInstance('Article', 'ContentModel');
 
 		$query = $this->db->getQuery(true)
-			->select($this->db->qn('id'))
-			->from($this->db->qn('#__content'))
-			->where($this->db->qn('state') . '=' . $this->db->q((int) self::TRASH));
+			->select($this->db->quoteName('id'))
+			->from($this->db->quoteName('#__content'))
+			->where($this->db->quoteName('state') . '=' . $this->db->quote((int) self::TRASH));
+
 		try
 		{
 			$ids = $this->db->setQuery($query)->loadAssocList('id');
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
-			throw new Exception(Text::_('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_DB'), 500);
+			throw new \Exception(Text::_('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_DB'), 500);
 		}
 
 		$ids = array_keys($ids);
@@ -640,26 +659,27 @@ class PlgSystemJtfavorites extends CMSPlugin
 	/**
 	 * Get trashed items
 	 *
-	 * @param    string  $trash
-	 * @param    int     $clientId
+	 * @param   string  $trash  Database table to search for trashed items
 	 *
-	 * @return   array
-	 * @throws   Exception
-	 * @since    1.2.0
+	 * @return  array
+	 * @throws  \Exception
+	 *
+	 * @since  1.2.0
 	 */
-	private function getTrashedItems($trash, $clientId)
+	private function getTrashedItems($trash)
 	{
 		$query = $this->db->getQuery(true)
-			->select($this->db->qn('id'))
-			->from($this->db->qn('#__' . $trash))
-			->where($this->db->qn('published') . '=' . $this->db->q((int) self::TRASH));
+			->select($this->db->quoteName('id'))
+			->from($this->db->quoteName('#__' . $trash))
+			->where($this->db->quoteName('published') . '=' . $this->db->quote((int) self::TRASH));
+
 		try
 		{
 			$ids = $this->db->setQuery($query)->loadAssocList('id');
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
-			throw new Exception(Text::_('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_DB'), 500);
+			throw new \Exception(Text::_('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_DB'), 500);
 		}
 
 		return array_keys($ids);
