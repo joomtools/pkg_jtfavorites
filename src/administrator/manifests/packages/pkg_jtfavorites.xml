@@ -11,7 +11,7 @@
 	<version>##VERSION##</version>
 	<description>Pakage to manage a list of favorites for plugin/module action.</description>
 	<blockChildUninstall>true</blockChildUninstall>
-	<php_minimum>5.6</php_minimum>
+	<php_minimum>7.3</php_minimum>
 
 	<scriptfile>script.php</scriptfile>
 
