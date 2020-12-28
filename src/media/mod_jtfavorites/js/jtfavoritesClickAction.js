@@ -141,7 +141,7 @@ var JtFavorites = window.JtFavorites || {};
 		});
 	};
 
-	JtFavorites.isExternal = function(url) {
+	JtFavorites.isExternal = function (url) {
 		var res = url.match(/(http(s)?)?(\/)?\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
 		return (res !== null);
 	};
@@ -239,10 +239,12 @@ var JtFavorites = window.JtFavorites || {};
 						try {
 							response = JSON.parse(response);
 						} catch (e) {
-							response = {succsess: true};
+							response = {success: true};
 						}
 
-						elm.parentNode.removeChild(processIcon);
+						if (elm.parentNode.contains(processIcon)) {
+							elm.parentNode.removeChild(processIcon);
+						}
 
 						if (response.success === true) {
 							elm.parentNode.prepend(successIcon);
@@ -272,7 +274,9 @@ var JtFavorites = window.JtFavorites || {};
 
 						if (activateTimeout) {
 							setTimeout(function () {
-								elm.parentNode.removeChild(icon);
+								if (elm.parentNode.contains(icon)) {
+									elm.parentNode.removeChild(icon);
+								}
 							}, 4000);
 						}
 					}
