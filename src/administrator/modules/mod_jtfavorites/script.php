@@ -11,28 +11,31 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Language\Text;
 
 /**
  * Script file of Joomla CMS
  *
- * @since   1.2.0
+ * @since  1.2.0
  */
 class Mod_JtfavoritesInstallerScript
 {
 	/**
 	 * Database object.
 	 *
-	 * @var     JDatabaseDriver
-	 * @since   1.2.0
+	 * @var   JDatabaseDriver
+	 *
+	 * @since  1.2.0
 	 */
 	protected $db;
 
 	/**
 	 * Previous version
 	 *
-	 * @var     string
-	 * @since   1.2.0
+	 * @var   string
+	 *
+	 * @since  1.2.0
 	 */
 	private $previousVersion;
 
@@ -40,10 +43,11 @@ class Mod_JtfavoritesInstallerScript
 	 * Function to act prior to installation process begins
 	 *
 	 * @param   string      $action     Which action is happening (install|uninstall|discover_install|update)
-	 * @param   JInstaller  $installer  The class calling this method
+	 * @param   Installer   $installer  The class calling this method
 	 *
-	 * @return   boolean  True on success
-	 * @since    1.2.0
+	 * @return  boolean  True on success
+	 *
+	 * @since  1.2.0
 	 */
 	public function preflight($action, $installer)
 	{
@@ -60,19 +64,19 @@ class Mod_JtfavoritesInstallerScript
 	/**
 	 * Set previous Version
 	 *
-	 * @return   void
-	 * @since    1.2.0
+	 * @return  void
+	 *
+	 * @since  1.2.0
 	 */
 	private function setPreviousVersion()
 	{
-		$db    = $this->db;
-		$query = $db->getQuery(true);
+		$query = $this->db->getQuery(true);
 
-		$query->select($db->qn('manifest_cache'))
-			->from($db->qn('#__extensions'))
-			->where($db->qn('element') . '=' . $db->q('mod_jtfavorites'));
+		$query->select($this->db->quoteName('manifest_cache'))
+			->from($this->db->quoteName('#__extensions'))
+			->where($this->db->quoteName('element') . '=' . $this->db->quote('mod_jtfavorites'));
 
-		$result = $db->setQuery($query)->loadResult();
+		$result = $this->db->setQuery($query)->loadResult();
 
 		if (!empty($result))
 		{
@@ -84,10 +88,12 @@ class Mod_JtfavoritesInstallerScript
 
 	/**
 	 * @param   string      $action     Which action is happening (install|uninstall|discover_install|update)
-	 * @param   JInstaller  $installer  The class calling this method
+	 * @param   Installer   $installer  The class calling this method
 	 *
-	 * @return   boolean  True on success
-	 * @since    1.2.0
+	 * @return  boolean     True on success
+	 * @throws  \Exception
+	 *
+	 * @since  1.2.0
 	 */
 	public function postflight($action, $installer)
 	{
@@ -95,7 +101,7 @@ class Mod_JtfavoritesInstallerScript
 		{
 			if (version_compare($this->previousVersion, '1.1.2', 'lt'))
 			{
-				$this->updateManifestCache();
+				$this->updateModulesParams();
 			}
 		}
 
@@ -103,24 +109,24 @@ class Mod_JtfavoritesInstallerScript
 	}
 
 	/**
-	 * Update manifest cache for existing modules
+	 * Update modules params for existing modules
 	 *
-	 * @return   void
-	 * @throws   Exception
-	 * @since    1.2.0
+	 * @return  void
+	 * @throws  \Exception
+	 *
+	 * @since  1.2.0
 	 */
-	private function updateManifestCache()
+	private function updateModulesParams()
 	{
-		$db        = $this->db;
 		$newParams = json_decode('{"core_actions0":{"action_title":"MOD_MENU_CLEAR_CACHE","use_core_action":"1","action_option":"com_cache"},"core_actions1":{"action_title":"MOD_MENU_GLOBAL_CHECKIN","use_core_action":"1","action_option":"com_checkin"},"core_actions2":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_CONTENT","use_core_action":"1","action_option":"clear_trash_content"},"core_actions3":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_MENU","use_core_action":"0","action_option":"clear_trash_menu"},"core_actions4":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_MODULES_SITE","use_core_action":"0","action_option":"clear_trash_modules_site"},"core_actions5":{"action_title":"MOD_JTFAVORITES_FIELDSET_CORE_ACTIONS_CLEAR_TRASH_MODULES_ADMIN","use_core_action":"0","action_option":"clear_trash_modules_admin"}}');
 
-		$query = $db->getQuery(true);
+		$query = $this->db->getQuery(true);
 
-		$query->select(array($db->qn('id'), $db->qn('params')))
-			->from($db->qn('#__modules'))
-			->where($db->qn('module') . '=' . $db->q('mod_jtfavorites'));
+		$query->select(array($this->db->quoteName('id'), $this->db->quoteName('params')))
+			->from($this->db->quoteName('#__modules'))
+			->where($this->db->quoteName('module') . '=' . $this->db->quote('mod_jtfavorites'));
 
-		$resultList = $db->setQuery($query)->loadObjectList();
+		$resultList = $this->db->setQuery($query)->loadObjectList();
 
 		foreach ($resultList as $row)
 		{
@@ -128,16 +134,16 @@ class Mod_JtfavoritesInstallerScript
 			$params->core_actions = (object) array_merge((array) $newParams, (array) $params->core_actions);
 			$params = json_encode($params);
 
-			$query = $db->getQuery(true);
-			$query->update($db->qn('#__modules'))
-				->set($db->qn('params') . '=' . $db->q($params))
-				->where($db->qn('id') . '=' . $db->q($row->id));
+			$query = $this->db->getQuery(true);
+			$query->update($this->db->quoteName('#__modules'))
+				->set($this->db->quoteName('params') . '=' . $this->db->quote($params))
+				->where($this->db->quoteName('id') . '=' . $this->db->quote($row->id));
 
 			try
 			{
-				$db->setQuery($query)->execute();
+				$this->db->setQuery($query)->execute();
 			}
-			catch (Exception $e)
+			catch (\Exception $e)
 			{
 				Factory::getLanguage()->load('mod_jtfavorites', dirname(__FILE__));
 
