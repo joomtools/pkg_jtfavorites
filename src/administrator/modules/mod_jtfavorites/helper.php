@@ -16,6 +16,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Filter\InputFilter;
+use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
 /**
@@ -27,29 +28,33 @@ class ModJtFavoritesHelper
 {
 	/**
 	 * Define integer for the state 'trash'
-	 * 
-	 * @var     int
-	 * @since   1.0.0
+	 *
+	 * @var   integer
+	 *
+	 * @since  1.0.0
 	 */
 	const TRASH = -2;
 
 	/**
-	 * @var     int
-	 * @since   1.0.0
+	 * @var   integer
+	 *
+	 * @since  1.0.0
 	 */
 	public static $row = 0;
 
 	/**
-	 * @var     bool
-	 * @since   1.0.0
+	 * @var   boolean
+	 *
+	 * @since  1.0.0
 	 */
 	public static $loadJs = true;
 
 	/**
 	 * Default order of groups
-	 * 
-	 * @var     array
-	 * @since   1.1.0
+	 *
+	 * @var   array
+	 *
+	 * @since  1.1.0
 	 */
 	private $defaultGroupsOrder = array(
 		'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE',
@@ -62,8 +67,9 @@ class ModJtFavoritesHelper
 	/**
 	 * List of groups titles
 	 *
-	 * @var     array
-	 * @since   1.1.0
+	 * @var   array
+	 *
+	 * @since  1.1.0
 	 */
 	private $groupsTitles = array(
 		"custom" => 'MOD_JTFAVORITES_VIEW_CUSTOMS_TITLE',
@@ -78,24 +84,27 @@ class ModJtFavoritesHelper
 	/**
 	 * List of links for core actions
 	 *
-	 * @var     array
-	 * @since   1.1.0
+	 * @var   array
+	 *
+	 * @since  1.1.0
 	 */
 	private $coreLinks = array(
-		"com_cache" => 'index.php?option=com_cache&task=deleteAll&boxchecked=999',
-		"com_checkin" => 'index.php?option=com_checkin&task=checkin&boxchecked=999',
-		"clear_trash_menu" => 'index.php?option=com_ajax&task=menu.0&group=system&plugin=jtvaforitesClearTrash&format=json',
-		"clear_trash_content" => 'index.php?option=com_ajax&task=content.0&group=system&plugin=jtvaforitesClearTrash&format=json',
-		"clear_trash_modules_site" => 'index.php?option=com_ajax&task=modules.0&group=system&plugin=jtvaforitesClearTrash&format=json',
+		"com_cache"                 => 'index.php?option=com_cache&task=deleteAll&boxchecked=999',
+		"com_checkin"               => 'index.php?option=com_checkin&task=checkin&boxchecked=999',
+		"clear_trash_menu"          => 'index.php?option=com_ajax&task=menu.0&group=system&plugin=jtvaforitesClearTrash&format=json',
+		"clear_trash_content"       => 'index.php?option=com_ajax&task=content.0&group=system&plugin=jtvaforitesClearTrash&format=json',
+		"clear_trash_modules_site"  => 'index.php?option=com_ajax&task=modules.0&group=system&plugin=jtvaforitesClearTrash&format=json',
 		"clear_trash_modules_admin" => 'index.php?option=com_ajax&task=modules.1&group=system&plugin=jtvaforitesClearTrash&format=json',
 	);
 
 	/**
 	 * List of tables to use on global checkin
-	 * @var     array
-	 * @since   1.1.0
+	 *
+	 * @var   array
+	 *
+	 * @since  1.1.0
 	 */
-	private $globalChekinTables = array(
+	private $globalChekInTables = array(
 		"#__banners",
 		"#__banner_clients",
 		"#__categories",
@@ -114,12 +123,13 @@ class ModJtFavoritesHelper
 	/**
 	 * Get a list of articles.
 	 *
-	 * @param   \Joomla\Registry\Registry  $params  Module params
+	 * @param   Registry  $params  Module params
 	 *
-	 * @return   array  A list of entries.
-	 * @since    1.0.0
+	 * @return  array  A list of entries.
+	 *
+	 * @since  1.0.0
 	 */
-	public static function getList($params)
+	public static function getList(Registry $params): array
 	{
 		$self   = new self;
 		$db     = Factory::getDbo();
@@ -153,12 +163,16 @@ class ModJtFavoritesHelper
 
 		$query->select($select)
 			->from($db->qn('#__jtfavorites') . ' AS jtf')
-			->join('LEFT', $db->qn('#__modules')
+			->join(
+				'LEFT', $db->qn('#__modules')
 				. ' AS mdl ON SUBSTRING_INDEX(' . $db->qn('jtf.assets_name')
-				. ', \'.\', -1)=' . $db->qn('mdl.id'))
-			->join('LEFT', $db->qn('#__extensions')
+				. ', \'.\', -1)=' . $db->qn('mdl.id')
+			)
+			->join(
+				'LEFT', $db->qn('#__extensions')
 				. ' AS plg ON SUBSTRING_INDEX(' . $db->qn('jtf.assets_name')
-				. ', \'.\', -1)=' . $db->qn('plg.extension_id'))
+				. ', \'.\', -1)=' . $db->qn('plg.extension_id')
+			)
 			->where($db->qn('jtf.user_id') . '=' . (int) $userId);
 
 		$result = $db->setQuery($query)->loadObjectList();
@@ -168,13 +182,14 @@ class ModJtFavoritesHelper
 	}
 
 	/**
-	 * @param   array                      $items   Object list with database entries
-	 * @param   \Joomla\Registry\Registry  $params  Module params
+	 * @param   array[]   $items   Object list with database entries
+	 * @param   Registry  $params  Module params
 	 *
-	 * @return   array
-	 * @since    1.0.0
+	 * @return  array
+	 *
+	 * @since  1.0.0
 	 */
-	private function sortList($items, $params)
+	private function sortList(array $items, Registry $params): array
 	{
 		$loadJs           = array();
 		$toDeleteInDb     = array();
@@ -274,7 +289,7 @@ class ModJtFavoritesHelper
 
 		if ($params->get('use_core_actions'))
 		{
-			$this->loadExtensionLanguage('mod_menu', 'module',1);
+			$this->loadExtensionLanguage('mod_menu', 'module', 1);
 
 			// Core actions
 			$coreActions = (array) $params->get('core_actions');
@@ -335,10 +350,11 @@ class ModJtFavoritesHelper
 	 * @param   string  $extension   The extension (com_modules/com_plugins)
 	 * @param   string  $assetsName  The asset to validate
 	 *
-	 * @return   array|bool  false if not allowed, or asrray with permissions
-	 * @since    1.0.0
+	 * @return  array|bool  false if not allowed, or asrray with permissions
+	 *
+	 * @since  1.0.0
 	 */
-	private function validateAuthorizations($extension, $assetsName)
+	private function validateAuthorizations(string $extension, string $assetsName)
 	{
 		$neededPermissions = array(
 			// Access to backend
@@ -381,14 +397,15 @@ class ModJtFavoritesHelper
 	/**
 	 * Load the extension language file
 	 *
-	 * @param   string  $extension  The extension (com_modules/com_plugins)
-	 * @param   string  $type       The extension type (module/plugin)
-	 * @param   int     $client_id  The client_id (0 = site / 1 = adminstration)
+	 * @param   string   $extension  The extension (com_modules/com_plugins)
+	 * @param   string   $type       The extension type (module/plugin)
+	 * @param   integer  $clientId   The clientId (0 = site / 1 = administration)
 	 *
-	 * @return   void
-	 * @since    1.0.0
+	 * @return  void
+	 *
+	 * @since  1.0.0
 	 */
-	private function loadExtensionLanguage($extension, $type, $client_id = 0)
+	private function loadExtensionLanguage(string $extension, string $type, $clientId = 0)
 	{
 		$extensionPath = $type . 's/' . $extension;
 
@@ -403,7 +420,7 @@ class ModJtFavoritesHelper
 
 		$basePath = JPATH_SITE;
 
-		if ($client_id)
+		if ($clientId)
 		{
 			$basePath = JPATH_ADMINISTRATOR;
 		}
@@ -424,10 +441,11 @@ class ModJtFavoritesHelper
 	 *
 	 * @param   array  $rows  The entries to delete from database
 	 *
-	 * @return   void
-	 * @since    1.0.0
+	 * @return  void
+	 *
+	 * @since  1.0.0
 	 */
-	private function deleteDbEntry($rows)
+	private function deleteDbEntry(array $rows)
 	{
 		$db = Factory::getDbo();
 
@@ -449,10 +467,11 @@ class ModJtFavoritesHelper
 	 *
 	 * @param   string  $layout  Layout name
 	 *
-	 * @return   FileLayout
-	 * @since    1.0.0
+	 * @return  FileLayout
+	 *
+	 * @since  1.0.0
 	 */
-	public static function getLayoutRenderer($layout)
+	public static function getLayoutRenderer(string $layout): FileLayout
 	{
 		$pathParts = pathinfo(ModuleHelper::getLayoutPath('mod_jtfavorites', $layout));
 
@@ -467,11 +486,12 @@ class ModJtFavoritesHelper
 	 * Check if the plugin is enabled
 	 * Throws a notice, if not
 	 *
-	 * @return   bool
-	 * @throws   \Exception
-	 * @since    1.0.0
+	 * @return  boolean
+	 * @throws  \Exception
+	 *
+	 * @since  1.0.0
 	 */
-	public static function isEnabledPlugin()
+	public static function isEnabledPlugin(): bool
 	{
 		$self      = new self;
 		$isEnabled = PluginHelper::isEnabled('system', 'jtfavorites');
@@ -481,7 +501,7 @@ class ModJtFavoritesHelper
 			return true;
 		}
 
-		// Load languagefiles
+		// Load language files
 		$self->loadExtensionLanguage('plg_system_jtfavorites', 'plugin');
 
 		$access   = Factory::getUser()->authorise('core.manage', 'com_plugins');
@@ -498,8 +518,9 @@ class ModJtFavoritesHelper
 	/**
 	 * Get the plugin id from database
 	 *
-	 * @return   mixed|null
-	 * @since    1.0.0
+	 * @return  mixed|null
+	 *
+	 * @since  1.0.0
 	 */
 	private function getPluginId()
 	{
@@ -518,13 +539,14 @@ class ModJtFavoritesHelper
 	/**
 	 * Get prepared items for output
 	 *
-	 * @param   array   $customActions
-	 * @param   string  $type
+	 * @param   array[]  $customActions  Array of objects for custom and core action
+	 * @param   string   $type           Type of submitted action list (custom, core)
 	 *
-	 * @return   array
-	 * @since    1.0.0
+	 * @return  array[]  List of objects
+	 *
+	 * @since  1.0.0
 	 */
-	private function getCustomAndCoreActions($customActions, $type)
+	private function getCustomAndCoreActions(array $customActions, string $type): array
 	{
 		$filter = new InputFilter;
 		$items  = array();
@@ -554,19 +576,20 @@ class ModJtFavoritesHelper
 	/**
 	 * Get core link for action
 	 *
-	 * @param   object  $item
+	 * @param   object  $item  Item for find the action link
 	 *
-	 * @return   string  Url for core action
-	 * @since    1.1.0
+	 * @return  string  Url for core action
+	 *
+	 * @since  1.1.0
 	 */
-	private function getCoreLink($item)
+	private function getCoreLink(object $item): string
 	{
 		$link = $this->coreLinks[$item->action_option];
 
 		if ($item->action_option == 'com_checkin')
 		{
 			$tablePrefix  = Factory::getConfig()->get('dbprefix');
-			$options      = $this->globalChekinTables;
+			$options      = $this->globalChekInTables;
 			$customTables = explode(',', $item->action_checkin_tables);
 			$customTables = array_filter($customTables);
 
@@ -584,13 +607,15 @@ class ModJtFavoritesHelper
 
 	/**
 	 * Sort items by order
-	 * @param   array  $order  List of keys to sort by
-	 * @param   array  $items
 	 *
-	 * @return   array
-	 * @since    1.1.0
+	 * @param   array    $order  List of keys to sort by
+	 * @param   array[]  $items  List of item to sort
+	 *
+	 * @return  array[]  Sorted list of items
+	 *
+	 * @since  1.1.0
 	 */
-	private function sortItems(array $order, array $items)
+	private function sortItems(array $order, array $items): array
 	{
 		$sortedItems = array();
 
