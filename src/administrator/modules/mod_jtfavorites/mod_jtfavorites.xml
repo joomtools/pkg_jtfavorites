@@ -107,8 +107,8 @@
 				<field
 						name="use_custom_actions"
 						type="radio"
-						label="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_LABEL"
-						description="MOD_JTFAVORITES_FIELD_ALLOW_CHANGE_STATE_DESC"
+						label="MOD_JTFAVORITES_FIELD_USE_ACTIONS_LABEL"
+						description="MOD_JTFAVORITES_FIELD_USE_ACTIONS_DESC"
 						class="btn-group btn-group-yesno"
 						default="0"
 						filter="integer"
