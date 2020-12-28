@@ -57,6 +57,7 @@ $displayData = array(
 
 if (ModJtFavoritesHelper::$loadJs)
 {
+	HTMLHelper::_('behavior.keepalive');
 	HTMLHelper::_('script', 'mod_jtfavorites/jtfavoritesClickAction.min.js', array('version' => 'auto', 'relative' => true));
 }
 
