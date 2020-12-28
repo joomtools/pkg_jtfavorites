@@ -425,7 +425,7 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	private function validateAuthorizations()
 	{
-		list($extension, $_) = explode('.', $this->assetsName, 2);
+		$extension = strstr($this->assetsName, '.', true);
 
 		$return     = true;
 		$assetsName = $extension == 'com_plugins' ? $extension : $this->assetsName;
@@ -587,12 +587,19 @@ class PlgSystemJtfavorites extends CMSPlugin
 
 		if (!empty($task = $this->app->input->getString('task')))
 		{
-			list($trash, $clientId) = explode('.', $task);
+			$trash = strstr($task, '.', true);
 
 			switch (true)
 			{
 				case $trash == 'content':
-					$this->clearContentTrash();
+					$ids = $this->getTrashedItems($trash);
+
+					if (!empty($ids))
+					{
+						BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_content/models', 'ContentModel');
+						$model = BaseDatabaseModel::getInstance('Article', 'ContentModel');
+						$model->delete($ids);
+					}
 					break;
 
 				case $trash == 'menu':
@@ -625,38 +632,6 @@ class PlgSystemJtfavorites extends CMSPlugin
 	}
 
 	/**
-	 * Clear content trashes items
-	 *
-	 * @return  void
-	 * @throws  \Exception
-	 *
-	 * @since  1.2.0
-	 */
-	private function clearContentTrash()
-	{
-		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_content/models', 'ContentModel');
-		$model = BaseDatabaseModel::getInstance('Article', 'ContentModel');
-
-		$query = $this->db->getQuery(true)
-			->select($this->db->quoteName('id'))
-			->from($this->db->quoteName('#__content'))
-			->where($this->db->quoteName('state') . '=' . $this->db->quote((int) self::TRASH));
-
-		try
-		{
-			$ids = $this->db->setQuery($query)->loadAssocList('id');
-		}
-		catch (\Exception $e)
-		{
-			throw new \Exception(Text::_('PLG_SYSTEM_JTFAVORITES_CLEAR_TRASH_ERROR_DB'), 500);
-		}
-
-		$ids = array_keys($ids);
-
-		$model->delete($ids);
-	}
-
-	/**
 	 * Get trashed items
 	 *
 	 * @param   string  $trash  Database table to search for trashed items
@@ -668,10 +643,17 @@ class PlgSystemJtfavorites extends CMSPlugin
 	 */
 	private function getTrashedItems($trash)
 	{
+		$column = 'published';
+
+		if ($trash == 'content')
+		{
+			$column = 'state';
+		}
+
 		$query = $this->db->getQuery(true)
 			->select($this->db->quoteName('id'))
 			->from($this->db->quoteName('#__' . $trash))
-			->where($this->db->quoteName('published') . '=' . $this->db->quote((int) self::TRASH));
+			->where($this->db->quoteName($column) . '=' . $this->db->quote((int) self::TRASH));
 
 		try
 		{

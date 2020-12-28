@@ -394,7 +394,9 @@ class ModJtFavoritesHelper
 
 		if ($type == 'plugin')
 		{
-			list($_, $folder, $element) = explode('_', $extension);
+			$_extension = str_replace('plg_', '', $extension);
+
+			list($folder, $element) = explode('_', $_extension);
 
 			$extensionPath = $type . 's/' . $folder . '/' . $element;
 		}
@@ -566,7 +568,7 @@ class ModJtFavoritesHelper
 			$tablePrefix  = Factory::getConfig()->get('dbprefix');
 			$options      = $this->globalChekinTables;
 			$customTables = explode(',', $item->action_checkin_tables);
-			$customTables = array_filter($customTables);;
+			$customTables = array_filter($customTables);
 
 			if (!empty($customTables))
 			{
